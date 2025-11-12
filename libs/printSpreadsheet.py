@@ -1,7 +1,7 @@
 from terminal import background  #¯\_(ツ)_/¯
 import os
 import sys
-
+#j
 def printscreen(spreadsheet,originX,originY,collumnSize):
     """
     prints a state of the spreadsheet
