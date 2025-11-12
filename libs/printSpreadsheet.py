@@ -1,5 +1,6 @@
 from terminal import background  #¯\_(ツ)_/¯
 import os
+import sys
 
 def printscreen(spreadsheet,originX,originY,collumnSize):
     """
@@ -75,7 +76,8 @@ def generateSetBGColorString(ID):
 
 
 def resetBGColor():
-    sys.stdout.write(f"\x1b[11;\007")
+    color = "253"
+    sys.stdout.write(f"\x1b[48;5;{color}m")
     sys.stdout.flush()
 
 
