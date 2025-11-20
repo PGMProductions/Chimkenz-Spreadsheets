@@ -2,25 +2,48 @@ from terminal import background  #¯\_(ツ)_/¯
 import os
 import sys
 
-def printscreen(spreadsheet,originX,originY,collumnSize):
+
+
+#This code is ugly but it works so it's okay
+
+SKIPLINEAMMOUNT = 3
+SELECTEDTEXTCOLOR = 88
+SELECTEEDSQUARECOLOR = 253
+
+def printscreen(spreadsheet,originX,originY,collumnSize,cursorX,cursorY):
     """
+    !!! WARNING !!! only ever input a rectangle
+
     prints a state of the spreadsheet
     i cant be bothered to make a proper code
     ik this is ugly af, i just hope it'll work and i wont have to come back to it
     """
+    spreadsheetCollumnAmmount = len(spreadsheet[0][originX:])
+    for line in spreadsheet:
+        assert len(line[originX:]) == spreadsheetCollumnAmmount      #checks if it is a rectangle aka if all the lines are of the same lenght
+    assert collumnSize > 5
+
+
+    spreadsheetCollumnAmmount -= 1                                   #WHY, IDK, BUT I CANT BE BOTHERED TO UNDERTAND, IT WORKS, OKAY?
     screenSize = os.get_terminal_size()
     printList = []                          #list of all the terminal lines it COULD print, might not print them all
-    collumnAmmount = screenSize[0]//collumnSize
+    maxCollumnAmmount = (screenSize[0]-3)//collumnSize
     usefulLines = []
-    for line in range(originY,min(len(spreadsheet),originY+screenSize[1])):
+
+    for line in range(originY,min(len(spreadsheet),originY+(screenSize[1]-SKIPLINEAMMOUNT))):
         usefulLines.append(spreadsheet[line][originX:min(originX+screenSize[0],len(spreadsheet[line])-1)])
     
-    printList.append(generateHeader(originX,collumnAmmount,collumnSize))
     for line in range(len(usefulLines)): 
-        for termLine in makeLinePrintable(usefulLines[line],collumnSize,collumnAmmount,line):
-            printList.append(termLine)
-            
-    for i in range(min(len(printList),screenSize[1])):
+        isFirstTermLine = True
+        for termLine in makeLinePrintable(usefulLines[line],collumnSize,maxCollumnAmmount,line,cursorX,(cursorY == line+originX)):
+            if isFirstTermLine:
+                isFirstTermLine = False
+                printList.append(generateLineHead(line+originX) + termLine)
+            else:
+                printList.append(generateLineHead(None) + termLine)                               #generateLineHead of none just adds the 3 spaces
+    
+    print(generateHeader(originX,min(maxCollumnAmmount,spreadsheetCollumnAmmount),collumnSize))
+    for i in range(min(len(printList),screenSize[1]-SKIPLINEAMMOUNT)):
         print(printList[i])
 
     print(generateSetBGColorString(0) + generateSetTextColorString(15))
@@ -30,7 +53,10 @@ def makeSquarePrintable(value,collumnSize):
     """
     ya give this the value of a square and your options and it gives you wat to print and how many lines
     """
-    valueSTR = str(value)
+    if value == None:
+        valueSTR = ""
+    else:
+        valueSTR = str(value)
     finalList = []
     while len(valueSTR) > collumnSize:
         finalList.append(valueSTR[:collumnSize])
@@ -40,14 +66,14 @@ def makeSquarePrintable(value,collumnSize):
     finalList.append(finalSTR)
     return finalList
 
-def makeLinePrintable(valuesList,collumnSize,collumnsAmmount,lineNumber):
+def makeLinePrintable(valuesList,collumnSize,collumnAmmount,lineNumber,cursorX,isCursorLine):
     """
     beeg list of all the values is given
     gives a list of strings
     each string is a line to print in the terminal
     """
     middleList = []
-    for value in range(min(len(valuesList),collumnsAmmount)):
+    for value in range(min(len(valuesList),collumnAmmount)):
         middleList.append(makeSquarePrintable(valuesList[value],collumnSize))
     
     finalList = []
@@ -56,7 +82,11 @@ def makeLinePrintable(valuesList,collumnSize,collumnsAmmount,lineNumber):
         linestring = ""
         for i in range(len(line)):
             squareColor = 234 + (((lineNumber+i)%2)*6)
-            linestring = linestring + generateSetBGColorString(squareColor)
+            textColor = 249 + (((lineNumber+i)%2)*5)
+            if isCursorLine and (i == cursorX):
+                squareColor = SELECTEEDSQUARECOLOR
+                textColor = SELECTEDTEXTCOLOR
+            linestring = linestring + generateSetBGColorString(squareColor) + generateSetTextColorString(textColor)
             if line[i] == None:
                 linestring = linestring + " "*collumnSize
             else:
@@ -65,15 +95,22 @@ def makeLinePrintable(valuesList,collumnSize,collumnsAmmount,lineNumber):
     return finalList
 
 
-def generateHeader(originX,collumnAmmount,collumnSize):               #not made yet
+def generateHeader(originX,collumnAmmount,collumnSize):
 
-    headString = ""
+    headString = "   "                                     #3 spaces because its the line header size
     for i in range(collumnAmmount):
         headString = headString + " " + nameCollumn(i+originX)
-        headString = headString + (" " * (((i+1)*collumnSize) - len(headString)))     #this line adds as many spaces as neeeded to complete the square
+        headString = headString + (" " * (((i+1)*collumnSize) - len(headString) + 3))     #this line adds as many spaces as neeeded to complete the square
 
     return generateSetBGColorString(254) + generateSetTextColorString(0) + headString + generateSetTextColorString(15)
 
+
+def generateLineHead(line):
+    if line == None:
+        return generateSetBGColorString(254) + "   " + generateSetTextColorString(15) 
+    numberStr = str(line)
+    numberStr = " " * (3-len(numberStr)) + numberStr
+    return generateSetBGColorString(254) + generateSetTextColorString(0) + numberStr + generateSetTextColorString(15) 
 
 def nameCollumn(collumn):
     alphabet = ["A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z","AA" , "AB" , "AC" , "AD" , "AE" , "AF" , "AG" , "AH" , "AI" , "AJ" , "AK" , "AL" , "AM" , "AN" , "AO" , "AP" , "AQ" , "AR" , "AS" , "AT" , "AU" , "AV" , "AW" , "AX" , "AY" , "AZ" , "BA" , "BB" , "BC" , "BD" , "BE" , "BF" , "BG" , "BH" , "BI" , "BJ" , "BK" , "BL" , "BM" , "BN" , "BO" , "BP" , "BQ" , "BR" , "BS" , "BT" , "BU" , "BV" , "BW" , "BX" , "BY" , "BZ" , "CA" , "CB" , "CC" , "CD" , "CE" , "CF" , "CG" , "CH" , "CI" , "CJ" , "CK" , "CL" , "CM" , "CN" , "CO" , "CP" , "CQ" , "CR" , "CS" , "CT" , "CU" , "CV" , "CW" , "CX" , "CY" , "CZ" , "DA" , "DB" , "DC" , "DD" , "DE" , "DF" , "DG" , "DH" , "DI" , "DJ" , "DK" , "DL" , "DM" , "DN" , "DO" , "DP" , "DQ" , "DR" , "DS" , "DT" , "DU" , "DV" , "DW" , "DX" , "DY" , "DZ" , "EA" , "EB" , "EC" , "ED" , "EE" , "EF" , "EG" , "EH" , "EI" , "EJ" , "EK" , "EL" , "EM" , "EN" , "EO" , "EP" , "EQ" , "ER" , "ES" , "ET" , "EU" , "EV" , "EW" , "EX" , "EY" , "EZ" , "FA" , "FB" , "FC" , "FD" , "FE" , "FF" , "FG" , "FH" , "FI" , "FJ" , "FK" , "FL" , "FM" , "FN" , "FO" , "FP" , "FQ" , "FR" , "FS" , "FT" , "FU" , "FV" , "FW" , "FX" , "FY" , "FZ" , "GA" , "GB" , "GC" , "GD" , "GE" , "GF" , "GG" , "GH" , "GI" , "GJ" , "GK" , "GL" , "GM" , "GN" , "GO" , "GP" , "GQ" , "GR" , "GS" , "GT" , "GU" , "GV" , "GW" , "GX" , "GY" , "GZ" , "HA" , "HB" , "HC" , "HD" , "HE" , "HF" , "HG" , "HH" , "HI" , "HJ" , "HK" , "HL" , "HM" , "HN" , "HO" , "HP" , "HQ" , "HR" , "HS" , "HT" , "HU" , "HV" , "HW" , "HX" , "HY" , "HZ" , "IA" , "IB" , "IC" , "ID" , "IE" , "IF" , "IG" , "IH" , "II" , "IJ" , "IK" , "IL" , "IM" , "IN" , "IO" , "IP" , "IQ" , "IR" , "IS" , "IT" , "IU" , "IV" , "IW" , "IX" , "IY" , "IZ" , "JA" , "JB" , "JC" , "JD" , "JE" , "JF" , "JG" , "JH" , "JI" , "JJ" , "JK" , "JL" , "JM" , "JN" , "JO" , "JP" , "JQ" , "JR" , "JS" , "JT" , "JU" , "JV" , "JW" , "JX" , "JY" , "JZ" , "KA" , "KB" , "KC" , "KD" , "KE" , "KF" , "KG" , "KH" , "KI" , "KJ" , "KK" , "KL" , "KM" , "KN" , "KO" , "KP" , "KQ" , "KR" , "KS" , "KT" , "KU" , "KV" , "KW" , "KX" , "KY" , "KZ" , "LA" , "LB" , "LC" , "LD" , "LE" , "LF" , "LG" , "LH" , "LI" , "LJ" , "LK" , "LL" , "LM" , "LN" , "LO" , "LP" , "LQ" , "LR" , "LS" , "LT" , "LU" , "LV" , "LW" , "LX" , "LY" , "LZ" , "MA" , "MB" , "MC" , "MD" , "ME" , "MF" , "MG" , "MH" , "MI" , "MJ" , "MK" , "ML" , "MM" , "MN" , "MO" , "MP" , "MQ" , "MR" , "MS" , "MT" , "MU" , "MV" , "MW" , "MX" , "MY" , "MZ" , "NA" , "NB" , "NC" , "ND" , "NE" , "NF" , "NG" , "NH" , "NI" , "NJ" , "NK" , "NL" , "NM" , "NN" , "NO" , "NP" , "NQ" , "NR" , "NS" , "NT" , "NU" , "NV" , "NW" , "NX" , "NY" , "NZ" , "OA" , "OB" , "OC" , "OD" , "OE" , "OF" , "OG" , "OH" , "OI" , "OJ" , "OK" , "OL" , "OM" , "ON" , "OO" , "OP" , "OQ" , "OR" , "OS" , "OT" , "OU" , "OV" , "OW" , "OX" , "OY" , "OZ" , "PA" , "PB" , "PC" , "PD" , "PE" , "PF" , "PG" , "PH" , "PI" , "PJ" , "PK" , "PL" , "PM" , "PN" , "PO" , "PP" , "PQ" , "PR" , "PS" , "PT" , "PU" , "PV" , "PW" , "PX" , "PY" , "PZ" , "QA" , "QB" , "QC" , "QD" , "QE" , "QF" , "QG" , "QH" , "QI" , "QJ" , "QK" , "QL" , "QM" , "QN" , "QO" , "QP" , "QQ" , "QR" , "QS" , "QT" , "QU" , "QV" , "QW" , "QX" , "QY" , "QZ" , "RA" , "RB" , "RC" , "RD" , "RE" , "RF" , "RG" , "RH" , "RI" , "RJ" , "RK" , "RL" , "RM" , "RN" , "RO" , "RP" , "RQ" , "RR" , "RS" , "RT" , "RU" , "RV" , "RW" , "RX" , "RY" , "RZ" , "SA" , "SB" , "SC" , "SD" , "SE" , "SF" , "SG" , "SH" , "SI" , "SJ" , "SK" , "SL" , "SM" , "SN" , "SO" , "SP" , "SQ" , "SR" , "SS" , "ST" , "SU" , "SV" , "SW" , "SX" , "SY" , "SZ" , "TA" , "TB" , "TC" , "TD" , "TE" , "TF" , "TG" , "TH" , "TI" , "TJ" , "TK" , "TL" , "TM" , "TN" , "TO" , "TP" , "TQ" , "TR" , "TS" , "TT" , "TU" , "TV" , "TW" , "TX" , "TY" , "TZ" , "UA" , "UB" , "UC" , "UD" , "UE" , "UF" , "UG" , "UH" , "UI" , "UJ" , "UK" , "UL" , "UM" , "UN" , "UO" , "UP" , "UQ" , "UR" , "US" , "UT" , "UU" , "UV" , "UW" , "UX" , "UY" , "UZ" , "VA" , "VB" , "VC" , "VD" , "VE" , "VF" , "VG" , "VH" , "VI" , "VJ" , "VK" , "VL" , "VM" , "VN" , "VO" , "VP" , "VQ" , "VR" , "VS" , "VT" , "VU" , "VV" , "VW" , "VX" , "VY" , "VZ" , "WA" , "WB" , "WC" , "WD" , "WE" , "WF" , "WG" , "WH" , "WI" , "WJ" , "WK" , "WL" , "WM" , "WN" , "WO" , "WP" , "WQ" , "WR" , "WS" , "WT" , "WU" , "WV" , "WW" , "WX" , "WY" , "WZ" , "XA" , "XB" , "XC" , "XD" , "XE" , "XF" , "XG" , "XH" , "XI" , "XJ" , "XK" , "XL" , "XM" , "XN" , "XO" , "XP" , "XQ" , "XR" , "XS" , "XT" , "XU" , "XV" , "XW" , "XX" , "XY" , "XZ" , "YA" , "YB" , "YC" , "YD" , "YE" , "YF" , "YG" , "YH" , "YI" , "YJ" , "YK" , "YL" , "YM" , "YN" , "YO" , "YP" , "YQ" , "YR" , "YS" , "YT" , "YU" , "YV" , "YW" , "YX" , "YY" , "YZ" , "ZA" , "ZB" , "ZC" , "ZD" , "ZE" , "ZF" , "ZG" , "ZH" , "ZI" , "ZJ" , "ZK" , "ZL" , "ZM" , "ZN" , "ZO" , "ZP" , "ZQ" , "ZR" , "ZS" , "ZT" , "ZU" , "ZV" , "ZW" , "ZX" , "ZY" , "ZZ"]
@@ -135,17 +172,12 @@ def invertDimentions(liste):
 
 
 
+if __name__ == "__main__":
+    from math import pi
+    from random import randint
+#    printscreen([[None if randint(0,6) == 0 else randint(0,25) for _ in range(50)] for _ in range(100)],randint(0,10),randint(0,10),randint(6,20),randint(10,50),randint(10,50))      #this ugly af thing genrerates a random spreadsheet for testing purposes
+    printscreen([[pi for _ in range(20)] for _ in range(20)],0,0,10,5,5)
+ #   for i in range(16,231):
+  #      print(generateSetBGColorString(SELECTEEDSQUARECOLOR) + generateSetTextColorString(i) + str(i))
 
-printscreen([[9.123456789,2,3,4,5,6,6],
-             [2,2,2,2,2,2,2],
-             [9,8,7,6,6,5,4],
-             [9,9,9,912345678901234567890,9,9,9],
-             [1,1,1,1,2,2,2],
-             [1,2,3,4,5,6,7],
-             [0,0,0,0,0,0,0]],1,0,15)
 
-
-    
-    
-    
-    
