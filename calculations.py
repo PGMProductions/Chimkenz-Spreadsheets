@@ -1,3 +1,7 @@
+from libs.misc import isNumber
+
+
+
 class Grid:
 	def __init__(self,width,height):
 		"""basically, this is a big, 2 dimensions list of the squares defined bellow"""
@@ -13,7 +17,11 @@ class Grid:
 
 
 
-	def nameToPos(self,name):
+	def update(self):                   #to do
+		pass
+
+
+	def _nameToPos(self,name):          #fairily simple, shouldn't cause problems
 		"""ya give name like A7 (string obviously) and it returns position in list like (7,0)"""
 		collumn = ""
 		row = ""
@@ -37,10 +45,9 @@ class Grid:
 #values is a dictionary
 
 class Square:
-	def __init__(self,grid):
+	def __init__(self):
 		self.content = ""
 		self.value = 0
-		self.grid = grid
 
 	def __str__(self):
 		return f"{self.content} -> {self.quickGetValue()}"
@@ -48,56 +55,102 @@ class Square:
 
 
 
-	def quickGetValue(self):
+	def quickGetValue(self):                              #single line
 		"""to get the value without updating it, use carefully"""
 		return self.value
 
-	def getValue(self):
+	def getValue(self,values):                                   #single line
 		"""to update the value then get it, slow but safe"""
-		self.updateValue()
+		self.updateValue(values)
 		return self.value
 
-	def updateValue(self):
-		if self.content[0] == "=":                                                  #only tries to do calculations if the first character is =
+	def updateValue(self,values):                         #fairily simple but exec might be weird
 
-			exec(f"self.value = {self.content[1:]}")                                #gets rid of the beggining =
+		if self.content[0] == "=":                             #only tries to do calculations if the first character is =
+
+			localContent = self.content                        #a local copy of self.content for the method to not modify it outside 
+
+			if not self.isIndependant():                       #saves some performance
+				for square,value in values.items():
+					print(str(square) + " UwU " + str(value))
+					localContent.replace(square,str(value))                        #here is problem
+
+			exec(f"self.value = {self.content[1:]}")           #gets rid of the beggining =
 		else:
 			self.value = self.content
 
-	def setContent(self,content):
-		self.content = content.upper()
+	def setContent(self,content):                         #single line
+		self.content = content
+
+
+	def getOtherSquare(self,values,square):               #single line, unused
+		return values[square]
+
+
 
 
 	def isIndependant(self):
-		"""returns true if the square can run without any other squares being calculated"""
+		"""returns true if the square can run without any other squares being calculated
+		dont run this on a text square (a square with text and that doesn't beggin with a =)"""
 		if not self.content[0] == "=":
 			return True                        #if the square is just a str, it can always run on its own
 		else:
 			for letter in ("A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"):
 				if letter in self.content:     #if any of those letters are in the content, it means that a collumn name is inputed
 					return False
-			return True
+			return True                             #fairily simple, shouldn't cause problems
 
-	def listRequiredSquares(self):                          #to do
+	def listRequiredSquares(self):                          #untested and complicated, if there's a problem, look here
 		"""returns a list of all the squares that need to be calculated in order to calculate that one
 		dont run this on a text square (a square with text and that doesn't beggin with a =)"""
 		pointer = 0
 		requiredSquares = []
 		while pointer < len(self.content):
-			if self.content[pointer].isalpha():            #if the pointer is on a letter
-				lenght = 2
-				if self.content[pointer+1].isalpha():      #if the thing after the pointer is a letter (the collumn names can be up to  2 letters)
-					lenght = 3
-				
 
-	def canCalculate(self,values):                          #to do
+			if self.content[pointer].isalpha():            #if the pointer is on a letter
+
+				#getting 1 collumn name
+				lenght = 1
+				if self.content[pointer+1].isalpha():      #if the thing after the pointer is a letter (the collumn names can be up to  2 letters)
+					lenght = 2
+				tempPointer = pointer+lenght
+				while isNumber(content[tempPointer]):      #adds as many chars as there are numbers
+					lenght += 1
+					tempPointer += 1
+
+				requiredSquares.append(self.content[pointer:pointer+lenght+1])             #+1 cuz the second number is excluded
+				pointer += lenght                          #puts the pointer after the collumn name to not add both AA1 and A1 when there is AA1
+
+			else:
+				pointer += 1
+
+			return requiredSquares
+
+
+
+	def canCalculate(self,values):                          #fairily simple but relies on listRequiredSquares()
 		"""returns True if all the collumn names of the square are indexes in the values dictionary
 		dont run this on a text square (a square with text and that doesn't beggin with a =)"""
-		pass
+		requiredSquares = self.listRequiredSquares()
+		for name in requiredSquares:
+			if not name in values:
+				return False
+
+		return True
 
 
 
 
 
 if __name__ == "__main__":
-	assert Grid(0,0).nameToPos("A8") == (8,0)
+	assert Grid(0,0)._nameToPos("A8") == (8,0)
+
+	a = Square()
+	a.setContent("=5*5")
+	assert a.isIndependant() == True
+	assert a.getValue({"A1" : 7}) == 25
+
+
+	a.setContent("=A1*5")
+	assert a.isIndependant() == False
+	assert a.getValue({"A1" : 7}) == 25       #make that work
