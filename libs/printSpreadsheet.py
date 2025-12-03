@@ -175,7 +175,7 @@ if __name__ == "__main__":
     from math import pi
     from random import randint
 #    printScreen([[None if randint(0,6) == 0 else randint(0,25) for _ in range(50)] for _ in range(100)],randint(0,10),randint(0,10),randint(6,20),randint(10,50),randint(10,50))      #this ugly af thing genrerates a random spreadsheet for testing purposes
-    printScreen([[pi for _ in range(20)] for _ in range(20)],0,0,10,5,5)
+    printScreen([[pi for _ in range(50)] for _ in range(50)],0,0,10,5,5)
  #   for i in range(16,231):
   #      print(generateSetBGColorString(SELECTEEDSQUARECOLOR) + generateSetTextColorString(i) + str(i))
 

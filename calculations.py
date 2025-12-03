@@ -27,7 +27,11 @@ class Grid:
         #hardcoded by program, go to libs/printSpreadsheet.py for more info
         #yes it is stupid, yes its impossible to read, but collumns names are annoying
 
-		return row,int(collumn)
+		return int(row),collumn
+
+
+
+
 
 
 
@@ -39,19 +43,27 @@ class Square:
 		self.grid = grid
 
 	def __str__(self):
-		return f"{self.content} = {self.updateValue()}"
+		return f"{self.content} -> {self.updateValue()}"
 
 
 
 	def getValue(self):
 		return self.value
 
-	def getUupdatedValue(self):
-		pass             #all the calculation bs, gonna be hard
-		return self.value
+	def updateValue(self):
+		if self.content[0] == "="                                                   #only tries to do calculations if the first character is =
+			exec(f"self.value = {self.content[1:]}")
+		else:
+			self.value = self.content
 
 	def setContent(self,content):
 		self.content = content
+
+
+
+
+
+
 
 
 if __name__ == "__main__":
