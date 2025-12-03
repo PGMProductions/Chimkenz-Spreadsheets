@@ -11,7 +11,7 @@ SELECTEEDSQUARECOLOR = 253
 
 def printScreen(spreadsheet,originX,originY,collumnSize,cursorX,cursorY):
     """
-    !!! WARNING !!! only ever input a rectangle
+    !!! WARNING !!! only ever input a rectangle  (actually, it might be fine not to, but I never tested it so just be normal)
 
     prints a state of the spreadsheet
     i cant be bothered to make a proper code

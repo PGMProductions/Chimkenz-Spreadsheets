@@ -43,24 +43,39 @@ class Square:
 		self.grid = grid
 
 	def __str__(self):
-		return f"{self.content} -> {self.updateValue()}"
+		return f"{self.content} -> {self.quickGetValue()}"
 
 
+
+
+	def quickGetValue(self):
+		"""to get the value without updating it, use carefully"""
+		return self.value
 
 	def getValue(self):
+		"""to update the value then get it, slow but safe"""
+		self.updateValue
 		return self.value
 
 	def updateValue(self):
-		if self.content[0] == "="                                                   #only tries to do calculations if the first character is =
-			exec(f"self.value = {self.content[1:]}")
+		if self.content[0] == "=":                                                  #only tries to do calculations if the first character is =
+
+			exec(f"self.value = {self.content[1:]}")                                #gets rid of the beggining =
 		else:
 			self.value = self.content
 
 	def setContent(self,content):
 		self.content = content
 
-
-
+	def isIndependant(self):
+		"""returns true if the square can run without any other squares being calculated"""
+		if not self.content[0] == "=":
+			return True                        #if the square is just a str, it can always run on its own
+		else:
+			for letter in ("A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"):
+				if letter in self.content:     #if any of those letters are in the content, it means that a collumn name is inputed
+					return False
+			return True
 
 
 
