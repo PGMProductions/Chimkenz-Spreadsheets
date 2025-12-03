@@ -65,7 +65,7 @@ class Square:
 			self.value = self.content
 
 	def setContent(self,content):
-		self.content = content
+		self.content = content.upper()
 
 
 	def isIndependant(self):
@@ -79,11 +79,20 @@ class Square:
 			return True
 
 	def listRequiredSquares(self):                          #to do
-		"""returns a list of all the squares that need to be calculated in order to calculate that one"""
-		pass
+		"""returns a list of all the squares that need to be calculated in order to calculate that one
+		dont run this on a text square (a square with text and that doesn't beggin with a =)"""
+		pointer = 0
+		requiredSquares = []
+		while pointer < len(self.content):
+			if self.content[pointer].isalpha():            #if the pointer is on a letter
+				lenght = 2
+				if self.content[pointer+1].isalpha():      #if the thing after the pointer is a letter (the collumn names can be up to  2 letters)
+					lenght = 3
+				
 
 	def canCalculate(self,values):                          #to do
-		"""returns True if all the collumn names of the square are indexes in the values dictionary"""
+		"""returns True if all the collumn names of the square are indexes in the values dictionary
+		dont run this on a text square (a square with text and that doesn't beggin with a =)"""
 		pass
 
 
