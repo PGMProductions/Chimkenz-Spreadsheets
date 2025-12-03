@@ -34,7 +34,7 @@ class Grid:
 
 
 
-
+#values is a dictionary
 
 class Square:
 	def __init__(self,grid):
@@ -54,7 +54,7 @@ class Square:
 
 	def getValue(self):
 		"""to update the value then get it, slow but safe"""
-		self.updateValue
+		self.updateValue()
 		return self.value
 
 	def updateValue(self):
@@ -67,6 +67,7 @@ class Square:
 	def setContent(self,content):
 		self.content = content
 
+
 	def isIndependant(self):
 		"""returns true if the square can run without any other squares being calculated"""
 		if not self.content[0] == "=":
@@ -76,6 +77,14 @@ class Square:
 				if letter in self.content:     #if any of those letters are in the content, it means that a collumn name is inputed
 					return False
 			return True
+
+	def listRequiredSquares(self):                          #to do
+		"""returns a list of all the squares that need to be calculated in order to calculate that one"""
+		pass
+
+	def canCalculate(self,values):                          #to do
+		"""returns True if all the collumn names of the square are indexes in the values dictionary"""
+		pass
 
 
 
