@@ -2,6 +2,8 @@ from libs.misc import isNumber
 
 
 
+DEBUGGRID = True
+
 class Grid:
 	def __init__(self,width,height):
 		"""basically, this is a big, 2 dimensions list of the squares defined bellow"""
@@ -40,7 +42,7 @@ class Grid:
 
 
 
-
+DEBUGSQARE = False
 
 #values is a dictionary
 
@@ -59,23 +61,27 @@ class Square:
 		"""to get the value without updating it, use carefully"""
 		return self.value
 
-	def getValue(self,values):                                   #single line
+	def getValue(self,values):                            #single line
 		"""to update the value then get it, slow but safe"""
 		self.updateValue(values)
 		return self.value
 
 	def updateValue(self,values):                         #fairily simple but exec might be weird
 
+		if DEBUGSQARE:                                              print(f"updateValue {values}")
+
 		if self.content[0] == "=":                             #only tries to do calculations if the first character is =
 
 			localContent = self.content                        #a local copy of self.content for the method to not modify it outside 
 
-			if not self.isIndependant():                       #saves some performance
+			if not self.isIndependant():                       #saves some performance (probably)
 				for square,value in values.items():
-					print(str(square) + " UwU " + str(value))
-					localContent.replace(square,str(value))                        #here is problem
 
-			exec(f"self.value = {self.content[1:]}")           #gets rid of the beggining =
+					if DEBUGSQARE:                                  print(str(square) + " UwU " + str(value))
+					localContent = localContent.replace(square,str(value))
+
+			if DEBUGSQARE:                                          print(localContent)
+			exec(f"self.value = {localContent[1:]}")           #gets rid of the beggining =
 		else:
 			self.value = self.content
 
@@ -83,10 +89,10 @@ class Square:
 		self.content = content
 
 
+
+
 	def getOtherSquare(self,values,square):               #single line, unused
 		return values[square]
-
-
 
 
 	def isIndependant(self):
@@ -153,4 +159,15 @@ if __name__ == "__main__":
 
 	a.setContent("=A1*5")
 	assert a.isIndependant() == False
-	assert a.getValue({"A1" : 7}) == 25       #make that work
+	assert a.getValue({"A1" : 7}) == 35
+
+
+	a.setContent("=((A1*B3)+32)**2")
+	assert a.isIndependant() == False
+	assert a.getValue({"A1" : 2 , "B3" : 4}) == 1600
+
+
+	a.setContent("=min(A1,B3,Y7)")
+	assert a.isIndependant() == False
+	assert a.getValue({"A1" : 2 , "B3" : 4 , "Y7" : -12}) == -12
+
