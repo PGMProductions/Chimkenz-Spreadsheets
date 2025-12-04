@@ -1,5 +1,5 @@
 from libs.misc import isNumber
-
+from libs.printSpreadsheet import nameCollumn
 
 
 DEBUGGRID = True
@@ -9,7 +9,8 @@ class Grid:
 		"""basically, this is a big, 2 dimensions list of the squares defined bellow"""
 		self.width = width
 		self.height = height
-		self.content = [[Square(self) for _  in range(width)]for _ in range(height)]
+		self.content = [[Square() for _  in range(width)]for _ in range(height)]
+		self.values = {}
 
 	def __str__(self):                         #never tried, might not work, who would want to print that anyways?
 		finalList = []
@@ -18,9 +19,6 @@ class Grid:
 		return "\n".join(finalList)
 
 
-
-	def update(self):                   #to do
-		pass
 
 
 	def _nameToPos(self,name):          #fairily simple, shouldn't cause problems
@@ -38,6 +36,29 @@ class Grid:
         #yes it is stupid, yes its impossible to read, but collumns names are annoying
 
 		return int(row),collumn
+
+	def _posToName(self,row,collumn):   #simple af
+		return nameCollumn(collumn) + str(row)	
+
+
+
+    #all the functions of the update cyle
+
+	def update(self):                   #to do
+		self.values = {}
+
+		self._firstCycle()
+
+	def _firstCycle(self):
+		"""this is to do all of the quick , independent Squares"""
+		for row in range(len(self.content)):
+			for collumn in range(len(self.content[row])):
+				if self.content[row][collumn].isIndependant():                                     #self.content[row][collumn]    will be every square of the spreadsheet
+					self.values[_posToName(row,collumn)] = self.content[row][collumn].getValue()
+
+		if DEBUGGRID:                                                                              print(self.values)
+
+
 
 
 
@@ -66,11 +87,14 @@ class Square:
 		self.updateValue(values)
 		return self.value
 
-	def updateValue(self,values):                         #fairily simple but exec might be weird
+	def updateValue(self,values):                         #not that simple but "thourougly" tested
 
 		if DEBUGSQARE:                                              print(f"updateValue {values}")
 
-		if self.content[0] == "=":                             #only tries to do calculations if the first character is =
+		if self.content == "":
+			self.value = None                                                                                                                                                     #fix that
+
+		elif self.content[0] == "=":  #only tries to do calculations if the first character is = and the square isnt empty
 
 			localContent = self.content                        #a local copy of self.content for the method to not modify it outside 
 
@@ -150,6 +174,7 @@ class Square:
 
 if __name__ == "__main__":
 	assert Grid(0,0)._nameToPos("A8") == (8,0)
+	assert Grid(0,0)._posToName(8,0) == "A8"
 
 	a = Square()
 	a.setContent("=5*5")
@@ -170,4 +195,7 @@ if __name__ == "__main__":
 	a.setContent("=min(A1,B3,Y7)")
 	assert a.isIndependant() == False
 	assert a.getValue({"A1" : 2 , "B3" : 4 , "Y7" : -12}) == -12
+
+	b = Grid(10,10)
+	b.update()
 
