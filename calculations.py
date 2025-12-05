@@ -4,13 +4,21 @@ from libs.printSpreadsheet import nameCollumn
 
 DEBUGGRID = True
 
+if DEBUGGRID:
+	from libs.printSpreadsheet import printScreen
+
+
 class Grid:
-	def __init__(self,width,height):
+	def __init__(self,width,height,maxDepth):
 		"""basically, this is a big, 2 dimensions list of the squares defined bellow"""
 		self.width = width
 		self.height = height
 		self.content = [[Square() for _  in range(width)]for _ in range(height)]
+
+		self.maxDepth = maxDepth
+
 		self.values = {}
+		self.listToCalculate = []
 
 	def __str__(self):                         #never tried, might not work, who would want to print that anyways?
 		finalList = []
@@ -41,6 +49,16 @@ class Grid:
 		return nameCollumn(collumn) + str(row)	
 
 
+	def setSquare(self,square,value):
+		"""sets a square
+		you can pass the name of the square or a tuple with its coordinates (row,collumn)"""
+
+		if type(square) == str:
+			squarePos = self._nameToPos(square)
+			self.content[squarePos[0]][squarePos[1]].setContent(value)
+		else:
+			self.content[square[0]][square[1]].setContent(value)
+
 
     #all the functions of the update cyle
 
@@ -49,14 +67,42 @@ class Grid:
 
 		self._firstCycle()
 
-	def _firstCycle(self):
+		depth = 0
+		while (not self._isFinished()) and depth < self.maxDepth:
+			self._otherCycles()
+			depth += 1
+
+	def _firstCycle(self):             #pretty ugly
 		"""this is to do all of the quick , independent Squares"""
 		for row in range(len(self.content)):
 			for collumn in range(len(self.content[row])):
 				if self.content[row][collumn].isIndependant():                                     #self.content[row][collumn]    will be every square of the spreadsheet
-					self.values[_posToName(row,collumn)] = self.content[row][collumn].getValue()
+					self.values[self._posToName(row,collumn)] = self.content[row][collumn].getValue(self.values)
 
-		if DEBUGGRID:                                                                              print(self.values)
+				else:
+
+					self.listToCalculate.append(self.content[row][collumn])
+
+
+
+		if DEBUGGRID:                                                                              print("First Cycle finished : " + str(self.values))
+
+	def _otherCycles(self):            #works in a pretty weird order BUT that shouldn't cause any problems
+		"""does all the squares it can do
+		regardless of order
+		it will do them in the order of the list of squares to do and if one later in the list requires only one previously in the list, it will be able to calculate"""
+		for square in self.listToCalculate:
+			if square.isCalculatable(self.values):
+				square.updateValue(self.values)
+
+		if DEBUGGRID:                                                                              print("Cycle finished : " + str(self.values))
+
+	def _isFinished(self):
+		for row in range(len(self.content)):
+			for collumn in range(len(self.content[row])):
+				if not self._posToName(row,collumn) in self.values:
+					return False
+		return True
 
 
 
@@ -67,7 +113,7 @@ DEBUGSQARE = False
 
 #values is a dictionary
 
-class Square:
+class Square:                                           #finished
 	def __init__(self):
 		self.content = ""
 		self.value = 0
@@ -92,7 +138,7 @@ class Square:
 		if DEBUGSQARE:                                              print(f"updateValue {values}")
 
 		if self.content == "":
-			self.value = None                                                                                                                                                     #fix that
+			self.value = None
 
 		elif self.content[0] == "=":  #only tries to do calculations if the first character is = and the square isnt empty
 
@@ -122,7 +168,7 @@ class Square:
 	def isIndependant(self):
 		"""returns true if the square can run without any other squares being calculated
 		dont run this on a text square (a square with text and that doesn't beggin with a =)"""
-		if not self.content[0] == "=":
+		if self.content == "" or not self.content[0] == "=":
 			return True                        #if the square is just a str, it can always run on its own
 		else:
 			for letter in ("A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"):
@@ -158,10 +204,12 @@ class Square:
 
 
 
-	def canCalculate(self,values):                          #fairily simple but relies on listRequiredSquares()
+	def isCalculatable(self,values):                       #fairily simple but relies on listRequiredSquares()
 		"""returns True if all the collumn names of the square are indexes in the values dictionary
 		dont run this on a text square (a square with text and that doesn't beggin with a =)"""
+
 		requiredSquares = self.listRequiredSquares()
+		if DEBUGGRID:                                       print(requiredSquares)
 		for name in requiredSquares:
 			if not name in values:
 				return False
@@ -172,9 +220,12 @@ class Square:
 
 
 
+
+
+
 if __name__ == "__main__":
-	assert Grid(0,0)._nameToPos("A8") == (8,0)
-	assert Grid(0,0)._posToName(8,0) == "A8"
+	assert Grid(0,0,0)._nameToPos("A8") == (8,0)
+	assert Grid(0,0,0)._posToName(8,0) == "A8"
 
 	a = Square()
 	a.setContent("=5*5")
@@ -196,6 +247,10 @@ if __name__ == "__main__":
 	assert a.isIndependant() == False
 	assert a.getValue({"A1" : 2 , "B3" : 4 , "Y7" : -12}) == -12
 
-	b = Grid(10,10)
+	b = Grid(10,10,100)
+	b.setSquare("A1","=7")
+	b.setSquare("A2","=8")
+	b.setSquare("B1","=A1*A2")
+
 	b.update()
 
