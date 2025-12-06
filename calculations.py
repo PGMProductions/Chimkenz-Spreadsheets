@@ -18,7 +18,7 @@ class Grid:
 		self.maxDepth = maxDepth
 
 		self.values = {}
-		self.listToCalculate = []
+		self.toCalculate = {}
 
 	def __str__(self):                         #never tried, might not work, who would want to print that anyways?
 		finalList = []
@@ -62,7 +62,8 @@ class Grid:
 
     #all the functions of the update cyle
 
-	def update(self):                   #to do
+	def update(self):                   #done, pretty simple
+		"""updates the values dictionary"""
 		self.values = {}
 
 		self._firstCycle()
@@ -71,6 +72,9 @@ class Grid:
 		while (not self._isFinished()) and depth < self.maxDepth:
 			self._otherCycles()
 			depth += 1
+
+
+
 
 	def _firstCycle(self):             #pretty ugly
 		"""this is to do all of the quick , independent Squares"""
@@ -81,7 +85,7 @@ class Grid:
 
 				else:
 
-					self.listToCalculate.append(self.content[row][collumn])
+					self.toCalculate[self._posToName(row,collumn)] = self.content[row][collumn]
 
 
 
@@ -91,11 +95,12 @@ class Grid:
 		"""does all the squares it can do
 		regardless of order
 		it will do them in the order of the list of squares to do and if one later in the list requires only one previously in the list, it will be able to calculate"""
-		for square in self.listToCalculate:
+		for name,square in self.toCalculate.items():
+			if DEBUGGRID:                                                                              print(f"toCalculate : {str(self.toCalculate[name])}")
 			if square.isCalculatable(self.values):
-				square.updateValue(self.values)
-
+				self.values[name] =	square.getValue(self.values)
 		if DEBUGGRID:                                                                              print("Cycle finished : " + str(self.values))
+
 
 	def _isFinished(self):
 		for row in range(len(self.content)):
@@ -176,7 +181,7 @@ class Square:                                           #finished
 					return False
 			return True                             #fairily simple, shouldn't cause problems
 
-	def listRequiredSquares(self):                          #untested and complicated, if there's a problem, look here
+	def listRequiredSquares(self):                          #untested and complicated, if there's a problem, look here                Fixed, maybe
 		"""returns a list of all the squares that need to be calculated in order to calculate that one
 		dont run this on a text square (a square with text and that doesn't beggin with a =)"""
 		pointer = 0
@@ -187,10 +192,10 @@ class Square:                                           #finished
 
 				#getting 1 collumn name
 				lenght = 1
-				if self.content[pointer+1].isalpha():      #if the thing after the pointer is a letter (the collumn names can be up to  2 letters)
+				if self.content[pointer+1].isalpha():      #if the thing after the pointer is a letter (the collumn names can be up to 2 letters)
 					lenght = 2
 				tempPointer = pointer+lenght
-				while isNumber(content[tempPointer]):      #adds as many chars as there are numbers
+				while tempPointer < lenght and isNumber(self.content[tempPointer]):      #adds as many chars as there are numbers
 					lenght += 1
 					tempPointer += 1
 
@@ -200,7 +205,7 @@ class Square:                                           #finished
 			else:
 				pointer += 1
 
-			return requiredSquares
+		return requiredSquares
 
 
 
