@@ -17,8 +17,10 @@ class Grid:
 
 		self.maxDepth = maxDepth
 
-		self.values = {}
+		self.valuesDict = {}
 		self.toCalculate = {}
+
+		self.valuesGrid = []
 
 	def __str__(self):                         #never tried, might not work, who would want to print that anyways?
 		finalList = []
@@ -27,7 +29,7 @@ class Grid:
 		return "\n".join(finalList)
 
 
-
+	#useful funcs
 
 	def _nameToPos(self,name):          #fairily simple, shouldn't cause problems
 		"""ya give name like A7 (string obviously) and it returns position in list like (7,0)"""
@@ -49,6 +51,12 @@ class Grid:
 		return nameCollumn(collumn) + str(row)	
 
 
+
+
+
+	#setters and getters
+
+
 	def setSquare(self,square,value):
 		"""sets a square
 		you can pass the name of the square or a tuple with its coordinates (row,collumn)"""
@@ -60,11 +68,28 @@ class Grid:
 			self.content[square[0]][square[1]].setContent(value)
 
 
-    #all the functions of the update cyle
 
-	def update(self):                   #done, pretty simple
-		"""updates the values dictionary"""
-		self.values = {}
+	def getValueGrid(self):
+		"""returns the grid of content WITHOUT UPDATING
+		you likely wana run update() before using this"""
+		return self.valuesGrid
+
+	def getValueDict(self):
+		"""can be much samller but also harder to work with
+		I put that here in case but I dont use it"""
+		return self.valuesDict
+
+
+
+
+
+
+
+    #all the methods of the update cyle
+
+	def update(self, updateGrid = True):                   #done, pretty simple
+		"""updates the values dictionary and potentially the grid"""
+		self.valuesDict = {}
 
 		self._firstCycle()
 
@@ -73,7 +98,22 @@ class Grid:
 			self._otherCycles()
 			depth += 1
 
+		if depth < self.maxDepth:           #executes only if the calculations stopped because the max depth was reached and not when calculations are done
+			if updateGrid:
+				self._updateValuesGrid() 
 
+
+
+
+	def _updateValuesGrid(self):
+		"""updates the variable valuesGrid"""
+		self.valuesGrid = []
+
+		for row in range(len(self.content)):
+			rowList = []
+			for collumn in range(len(self.content[row])):
+				rowList.append(self.valuesDict[self._posToName(row,collumn)])               #self.content[row][collumn]    will be every square of the spreadsheet
+			self.valuesGrid.append(rowList)
 
 
 	def _firstCycle(self):             #pretty ugly
@@ -81,7 +121,7 @@ class Grid:
 		for row in range(len(self.content)):
 			for collumn in range(len(self.content[row])):
 				if self.content[row][collumn].isIndependant():                                     #self.content[row][collumn]    will be every square of the spreadsheet
-					self.values[self._posToName(row,collumn)] = self.content[row][collumn].getValue(self.values)
+					self.valuesDict[self._posToName(row,collumn)] = self.content[row][collumn].getValue(self.valuesDict)
 
 				else:
 
@@ -89,7 +129,7 @@ class Grid:
 
 
 
-		if DEBUGGRID:                                                                              print("First Cycle finished : " + str(self.values))
+		if DEBUGGRID:                                                                              print("First Cycle finished : " + str(self.valuesDict))
 
 	def _otherCycles(self):            #works in a pretty weird order BUT that shouldn't cause any problems
 		"""does all the squares it can do
@@ -97,15 +137,15 @@ class Grid:
 		it will do them in the order of the list of squares to do and if one later in the list requires only one previously in the list, it will be able to calculate"""
 		for name,square in self.toCalculate.items():
 			if DEBUGGRID:                                                                              print(f"toCalculate : {str(self.toCalculate[name])}")
-			if square.isCalculatable(self.values):
-				self.values[name] =	square.getValue(self.values)
-		if DEBUGGRID:                                                                              print("Cycle finished : " + str(self.values))
+			if square.isCalculatable(self.valuesDict):
+				self.valuesDict[name] =	square.getValue(self.valuesDict)
+		if DEBUGGRID:                                                                              print("Cycle finished : " + str(self.valuesDict))
 
 
 	def _isFinished(self):
 		for row in range(len(self.content)):
 			for collumn in range(len(self.content[row])):
-				if not self._posToName(row,collumn) in self.values:
+				if not self._posToName(row,collumn) in self.valuesDict:
 					return False
 		return True
 
@@ -252,10 +292,14 @@ if __name__ == "__main__":
 	assert a.isIndependant() == False
 	assert a.getValue({"A1" : 2 , "B3" : 4 , "Y7" : -12}) == -12
 
-	b = Grid(10,10,100)
+	b = Grid(15,15,100)
 	b.setSquare("A1","=7")
 	b.setSquare("A2","=8")
 	b.setSquare("B1","=A1*A2")
 
 	b.update()
+
+	b.setSquare("A9","=9")
+	b.setSquare("H10","=B1*H2")
+	b.setSquare("H2","=19")
 
