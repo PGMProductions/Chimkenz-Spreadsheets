@@ -55,10 +55,62 @@ class ChimkenzSpreadsheet:
 
 
 
+
+
 	def _input(self):         #to do
+		"""does all the input work
+		waits for the user to press a key
+		moves the cursor when an arrow is pressed
+		types/delete text when letters or del is pressed
+		"""
+		#waitin for sandbuster to work for me
 
 
 
+
+
+
+
+
+	def _newLoop_(self):
+		"""executed as the first ever method in the main loop
+		unused in the original code"""
+		pass
+
+	def _preInput_(self):
+		"""is executed right before _input() in main loop
+		unused in the original code"""
+		pass
+
+	def _postInput_(self):
+		"""is executed right after _input() in main loop
+		unused in the original code"""
+		pass
+
+	def _preUpdateValues_(self):
+		"""is executed right before _updateValues() in main loop
+		unused in the original code"""
+		pass
+
+	def _postUpdateValues_(self):
+		"""is executed right after _updateValues() in main loop
+		unused in the original code"""
+		pass
+
+	def _preUpdateScreen_(self):
+		"""is executed right before updateScreen() in main loop
+		unused in the original code"""
+		pass
+
+	def _postUpdateScreen_(self):
+		"""is executed right after updateScreen() in main loop
+		unused in the original code"""
+		pass
+
+	def _endLoop_(self):
+		"""executed as the last ever method in the main loop
+		unused in the original code"""
+		pass
 
 
 
@@ -66,6 +118,22 @@ class ChimkenzSpreadsheet:
 
 	def _launchMainLoop(self):
 		while self.keepRunning:
+			_newLoop_()           #unused
+
+			_preInput_()          #unused
+			_input()
+			_postInput_()         #unused
+
+			_preUpdateValues_()   #unused
+			_updateValues()
+			_postUpdateValues_()  #unused
+
+			_preUpdateScreen_()   #unused
+ 			updateScreen()
+			_postUpdateScreen_()  #unused
+
+			_endLoop_()           #unused
+
 
 
 
