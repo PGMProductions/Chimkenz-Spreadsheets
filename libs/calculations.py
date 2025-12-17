@@ -1,26 +1,26 @@
-from misc import isNumber
-from printSpreadsheet import nameCollumn
+from libs.misc import isNumber
+from libs.printSpreadsheet import nameCollumn
 
 
-DEBUGGRID = True
+DEBUGGRID = False
 
 if DEBUGGRID:
 	from libs.printSpreadsheet import printScreen
 
 
 class Grid:
-	def __init__(self,width,height,maxDepth):
+	def __init__(self,maxDepth,width = 1,height = 1):
 		"""basically, this is a big, 2 dimensions list of the squares defined bellow"""
 		self.width = width
 		self.height = height
-		self.content = [[Square() for _  in range(width)]for _ in range(height)]
+		self.content = [[Square() for _  in range(width)]for _ in range(height)] #content grid
 
 		self.maxDepth = maxDepth
 
-		self.valuesDict = {}
+		self.valuesDict = {}                                                     #value dictionary
 		self.toCalculate = {}
 
-		self.valuesGrid = []
+		self.valuesGrid = []                                                     #value grid
 
 	def __str__(self):                         #never tried, might not work, who would want to print that anyways?
 		finalList = []
@@ -50,23 +50,44 @@ class Grid:
 	def _posToName(self,row,collumn):   #simple af
 		return nameCollumn(collumn) + str(row)	
 
+	def _addLine(self):
+		"""adds a line at the bottom of the content grid"""
+		self.content.append([Square() for _ in self.content[0]])      #adds a line as long as the first
 
+	def _addCollumn(self):
+		"""adds a collumn at the end of every line"""
+		for line in self.content:
+			line.append(Square())
 
+	def isLongEnough(self,collumn):
+		"""returns if the grid is long enough to include the given collumn"""
+		return collumn < len(self.content[0])
 
+	def isTallEnough(self,line):
+		"""returns if the grid is tall enough to incude the given line"""
+		return line < len(self.content)
 
 	#setters and getters
 
 
 	def setSquare(self,square,value):
 		"""sets a square
-		you can pass the name of the square or a tuple with its coordinates (row,collumn)"""
+		you can pass the name of the square or a tuple with its coordinates (row,collumn)
+		makes the grid bigger if needed"""
 
 		if type(square) == str:
 			squarePos = self._nameToPos(square)
-			self.content[squarePos[0]][squarePos[1]].setContent(value)
 		else:
-			self.content[square[0]][square[1]].setContent(value)
+			squarePos = square
 
+		while not self.isLongEnough(squarePos[1]):   #adds collumns until the square is in the grid
+			self._addCollumn()
+
+		while not self.isTallEnough(squarePos[0]):   #adds lines until the square is in the grid
+			self._addLine()
+
+
+		self.content[squarePos[0]][squarePos[1]].setContent(value)
 
 
 	def getValueGrid(self):
@@ -295,7 +316,7 @@ if __name__ == "__main__":
 	b = Grid(15,15,100)
 	b.setSquare("A1","=7")
 	b.setSquare("A2","=8")
-	b.setSquare("B1","=A1*A2")
+	b.setSquare("B1","=A1*A2")       #turn on DEBUGGRID for those
 
 	b.update()
 

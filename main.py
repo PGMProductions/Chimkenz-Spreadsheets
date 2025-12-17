@@ -5,9 +5,8 @@ import sys
 from libs.printSpreadsheet import printScreen
 from libs.calculations import Grid
 from libs.cursor import Cursor
+from libs.terminal import ninput
 
-
-from cursor import Cursor
 
 
 csv.field_size_limit(sys.maxsize)
@@ -18,26 +17,34 @@ class ChimkenzSpreadsheet:
 		self.originX = 0
 		self.originY = 0
 
+
+		self.options = {"autoUpdate" : True , "maxDepth" : 100 , "collumnSize" : 16}
+
+
+		with open("OPTIONS.txt" , newline = "") as csvfile:
+			spamreader = csv.reader(csvfile, delimiter='=', quotechar='|')
+			for row in spamreader:
+
+				if type(self.options[row[0]]) == bool:
+					self.options[row[0]] = bool(row[1])
+
+				elif type(self.options[row[0]]) == int:
+					self.options[row[0]] = int(row[1])
+					
+
 		self.cursor = Cursor()
-		self.grid   = Grid()
+		self.grid   = Grid(self.options["maxDepth"])
 
 		self.keepRunning = True
 
 		with open(filepath , newline = "") as csvfile:
-			spamreader = csv.reader(csvfile, delimiter=' ', quotechar='|')
+			spamreader = csv.reader(csvfile, delimiter=';', quotechar='|')
+			rowNum = 0
 			for row in spamreader:
-				for collumn in row:
-					grid.setSquare((row,collumn))
+				for collumn in range(len(row)):
+					self.grid.setSquare((rowNum,collumn),row[collumn])
+				rowNum += 1
 
-		self.options = {}
-		#available options are
-			#autoUpdate : Bool
-			
-
-		with open("OPTIONS.txt" , newline = "") as csvfile:
-			spamreader = csv.reader(csvfile, delimiter=' ', quotechar='|')
-			for row in spamreader:
-				options[row[0]] = row[1]
 
 
 
@@ -46,7 +53,7 @@ class ChimkenzSpreadsheet:
 
 	def updateScreen(self):
 		"""updates what is shown on screen but not the values"""
-		printScreen(self.grid.getValueGrid(),self.originX,self.originY,8,cursor.X(),cursor.Y())            #add collumn size choosing when options are done
+		printScreen(self.grid.getValueGrid(),self.originX,self.originY,self.options["collumnSize"],self.cursor.X(),self.cursor.Y())            #add collumn size choosing when options are done
 
 
 	def _updateValues(self):
@@ -60,10 +67,11 @@ class ChimkenzSpreadsheet:
 	def _input(self):         #to do
 		"""does all the input work
 		waits for the user to press a key
-		moves the cursor when an arrow is pressed
-		types/delete text when letters or del is pressed
+		moves the cursor if an arrow is pressed
+		types/delete text if letters or del is pressed
 		"""
-		#waitin for sandbuster to work for me
+		pass
+	#	got = ninput( self.update_logic, self.update_display, error = False, text = "" , before = ":",condition = self.is_finished , escape = None ) #idk, sandbuster isnt of much help
 
 
 
@@ -118,21 +126,22 @@ class ChimkenzSpreadsheet:
 
 	def _launchMainLoop(self):
 		while self.keepRunning:
-			_newLoop_()           #unused
+			self._newLoop_()           #unused
 
-			_preInput_()          #unused
-			_input()
-			_postInput_()         #unused
+			self._preInput_()          #unused
+			self._input()
+			self._postInput_()         #unused
 
-			_preUpdateValues_()   #unused
-			_updateValues()
-			_postUpdateValues_()  #unused
+			self._preUpdateValues_()   #unused
+			self._updateValues()
+			self._postUpdateValues_()  #unused
 
-			_preUpdateScreen_()   #unused
- 			updateScreen()
-			_postUpdateScreen_()  #unused
+			if self.options["autoUpdate"] == True:
+				self._preUpdateScreen_()   #unused
+				self.updateScreen()
+				self._postUpdateScreen_()  #unused
 
-			_endLoop_()           #unused
+			self._endLoop_()           #unused
 
 
 

@@ -4,36 +4,36 @@
 
 class Cursor:
 	def __init__(self):
-		self.X = 0
-		self.Y = 0
+		self.x = 0
+		self.y = 0
 
 	def __str__(self):
-		return f"cursor at {self.X} {self.Y}"
+		return f"cursor at {self.x} {self.y}"
 
 
 
 	#setters
 	def up(self):
-		self.Y -= 1
+		self.y -= 1
 
 	def down(self):
-		self.Y += 1
+		self.y += 1
 
 	def left(self):
-		self.X -= 1
+		self.x -= 1
 
 	def right(self):
-		self.X += 1
+		self.x += 1
 
-	def goto(self,goX,goY):
-		self.X = goX
-		self.Y = goY
+	def goto(self,gox,goy):
+		self.x = gox
+		self.y = goy
 
 
 	#getters
 	def X(self):
-		return self.X
+		return self.x
 
 	def Y(self):
-		return self.Y
+		return self.y
 
