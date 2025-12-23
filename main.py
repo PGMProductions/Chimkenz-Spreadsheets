@@ -5,7 +5,8 @@ import sys
 from libs.printSpreadsheet import printScreen
 from libs.calculations import Grid
 from libs.cursor import Cursor
-from libs.terminal import ninput
+from libs.terminal import ninput,Key
+from libs.misc import strToBool
 
 
 
@@ -26,11 +27,10 @@ class ChimkenzSpreadsheet:
 			for row in spamreader:
 
 				if type(self.options[row[0]]) == bool:
-					self.options[row[0]] = bool(row[1])
+					self.options[row[0]] = strToBool(row[1])
 
 				elif type(self.options[row[0]]) == int:
 					self.options[row[0]] = int(row[1])
-					
 
 		self.cursor = Cursor()
 		self.grid   = Grid(self.options["maxDepth"])
@@ -70,10 +70,22 @@ class ChimkenzSpreadsheet:
 		moves the cursor if an arrow is pressed
 		types/delete text if letters or del is pressed
 		"""
-		pass
-	#	got = ninput( self.update_logic, self.update_display, error = False, text = "" , before = ":",condition = self.is_finished , escape = None ) #idk, sandbuster isnt of much help
+		command = ninput(quick = 1, simple = True) #idk, sandbuster isnt of much help
 
+		if command == Key.UP:
+			self.cursor.up()
+		
+		elif command == Key.DOWN:
+			self.cursor.down()
+		
+		elif command == Key.LEFT:
+			self.cursor.left()
 
+		elif command == Key.RIGHT:
+			self.cursor.right()
+
+		elif command == Key.ENTER:
+			
 
 
 
@@ -128,18 +140,20 @@ class ChimkenzSpreadsheet:
 		while self.keepRunning:
 			self._newLoop_()           #unused
 
-			self._preInput_()          #unused
-			self._input()
-			self._postInput_()         #unused
-
-			self._preUpdateValues_()   #unused
-			self._updateValues()
-			self._postUpdateValues_()  #unused
-
 			if self.options["autoUpdate"] == True:
 				self._preUpdateScreen_()   #unused
 				self.updateScreen()
 				self._postUpdateScreen_()  #unused
+
+				self._preUpdateValues_()   #unused
+				self._updateValues()
+				self._postUpdateValues_()  #unused
+
+			self._preInput_()          #unused
+			self._input()
+			self._postInput_()         #unused
+
+
 
 			self._endLoop_()           #unused
 
