@@ -14,10 +14,13 @@ csv.field_size_limit(sys.maxsize)
 
 class ChimkenzSpreadsheet:
 	def __init__(self,filepath):
+		print("__init__")
+		print("Launching Chimkenz Spreadsheet")
 
 		self.originX = 0
 		self.originY = 0
 
+		self.text = ""
 
 		self.options = {"autoUpdate" : True , "maxDepth" : 100 , "collumnSize" : 16}
 
@@ -32,6 +35,8 @@ class ChimkenzSpreadsheet:
 				elif type(self.options[row[0]]) == int:
 					self.options[row[0]] = int(row[1])
 
+		print("Options loaded")
+
 		self.cursor = Cursor()
 		self.grid   = Grid(self.options["maxDepth"])
 
@@ -44,6 +49,9 @@ class ChimkenzSpreadsheet:
 				for collumn in range(len(row)):
 					self.grid.setSquare((rowNum,collumn),row[collumn])
 				rowNum += 1
+
+		print("File loaded")
+
 
 
 
@@ -70,14 +78,14 @@ class ChimkenzSpreadsheet:
 		moves the cursor if an arrow is pressed
 		types/delete text if letters or del is pressed
 		"""
-		command = ninput(quick = 1, simple = True) #idk, sandbuster isnt of much help
+		command = ninput(quick = 1, simple = True, text = "", before = self.text, error = None)
 
 		if command == Key.UP:
 			self.cursor.up()
-		
+
 		elif command == Key.DOWN:
 			self.cursor.down()
-		
+
 		elif command == Key.LEFT:
 			self.cursor.left()
 
@@ -85,12 +93,26 @@ class ChimkenzSpreadsheet:
 			self.cursor.right()
 
 		elif command == Key.ENTER:
-			
+			pass
+
+		elif command == Key.BACKSPACE:
+			self.text = self.text[:-1]
+
+		elif command == ";":
+			pass             #because semicolons are stupid and break everything
+			                 #take that C#
+
+		else:
+			self.text = self.text + command
 
 
 
 
 
+	def _start(self):
+		"""executed before the main loop
+		unused in the original code"""
+		pass
 
 	def _newLoop_(self):
 		"""executed as the first ever method in the main loop
@@ -137,13 +159,22 @@ class ChimkenzSpreadsheet:
 
 
 	def _launchMainLoop(self):
+		print("_launchMainLoop")
+
+		self._updateValues()           #initializes the values grid
+		print("Values calculated")
+
+		self._start()                  #unused
+		print("Main loop initialised")
 		while self.keepRunning:
 			self._newLoop_()           #unused
 
+			self._preUpdateScreen_()   #unused
+			self.updateScreen()
+			self._postUpdateScreen_()  #unused
+
+
 			if self.options["autoUpdate"] == True:
-				self._preUpdateScreen_()   #unused
-				self.updateScreen()
-				self._postUpdateScreen_()  #unused
 
 				self._preUpdateValues_()   #unused
 				self._updateValues()
@@ -152,7 +183,6 @@ class ChimkenzSpreadsheet:
 			self._preInput_()          #unused
 			self._input()
 			self._postInput_()         #unused
-
 
 
 			self._endLoop_()           #unused

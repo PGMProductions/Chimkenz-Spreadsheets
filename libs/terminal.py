@@ -8,7 +8,6 @@ from io import StringIO
 #Credits to SandBuster for this file
 #https://github.com/sandbuster2005/ChimkenMuziks/blob/main/libs/handmade/terminal.py
 
-#I've not modified the file at all, except comments
 
 #I have no idea what this is
 
@@ -318,7 +317,7 @@ def ninput(*arg : Callable , **kwarg) -> str:
             if quick:
                 if len(value) >= quick:
                     stop = True
-    print("")
+    print("")                           #added the \n\n
     return value
     
 #pretty sure your not dumb if you see this so it can go without comment for now

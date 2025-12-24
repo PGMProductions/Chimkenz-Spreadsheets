@@ -26,10 +26,10 @@ def printScreen(spreadsheet,originX,originY,collumnSize,cursorX,cursorY):       
     spreadsheetCollumnAmmount -= 1                                   #WHY, IDK, BUT I CANT BE BOTHERED TO UNDERTAND, IT WORKS, OKAY?
     screenSize = os.get_terminal_size()
     printList = []                          #list of all the terminal lines it COULD print, might not print them all
-    maxCollumnAmmount = (screenSize[0]-3)//collumnSize
+    maxCollumnAmmount = (screenSize[0]-SKIPLINEAMMOUNT)//collumnSize
     usefulLines = []
 
-    for line in range(originY,min(len(spreadsheet),originY+(screenSize[1]-SKIPLINEAMMOUNT))):
+    for line in range(originY,min(len(spreadsheet),originY+(screenSize[0]-SKIPLINEAMMOUNT))):
         usefulLines.append(spreadsheet[line][originX:min(originX+screenSize[0],len(spreadsheet[line])-1)])
     
     for line in range(len(usefulLines)): 
@@ -41,11 +41,11 @@ def printScreen(spreadsheet,originX,originY,collumnSize,cursorX,cursorY):       
             else:
                 printList.append(generateLineHead(None) + termLine)                               #generateLineHead of none just adds the 3 spaces
     
-    print(generateHeader(originX,min(maxCollumnAmmount,spreadsheetCollumnAmmount),collumnSize))
+    print("\n" + generateHeader(originX,min(maxCollumnAmmount,spreadsheetCollumnAmmount),collumnSize))       #the \n is a bandaid fix cuz ninput is weird
     for i in range(min(len(printList),screenSize[1]-SKIPLINEAMMOUNT)):
         print(printList[i])
 
-    print(generateSetBGColorString(0) + generateSetTextColorString(15))
+    print(generateSetBGColorString(0) + generateSetTextColorString(15)) 
 
 
 def makeSquarePrintable(value,collumnSize):                                                    #fairily complicated but tested, works fine

@@ -14,13 +14,15 @@ class Cursor:
 
 	#setters
 	def up(self):
-		self.y -= 1
+		if self.y > 0:
+			self.y -= 1
 
 	def down(self):
 		self.y += 1
 
 	def left(self):
-		self.x -= 1
+		if self.x > 0:
+			self.x -= 1
 
 	def right(self):
 		self.x += 1
