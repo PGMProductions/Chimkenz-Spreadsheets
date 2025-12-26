@@ -39,7 +39,7 @@ class Key:
     CTRL_N = "\x0e"
     CTRL_O = "\x0f"
     CTRL_P = "\x10"
-    CTRL_Q = "\x11"
+    CTRL_Q = "\x1b\x11"
     CTRL_R = "\x12"
     CTRL_S = "\x13"
     CTRL_T = "\x14"

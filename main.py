@@ -7,6 +7,7 @@ from libs.calculations import Grid
 from libs.cursor import Cursor
 from libs.terminal import ninput,Key
 from libs.misc import strToBool
+from datetime import datetime
 
 
 
@@ -21,6 +22,18 @@ class ChimkenzSpreadsheet:
 		self.originY = 0
 
 		self.text = ""
+		self.message = ""
+
+		self.shouldUpdate = False
+
+		self.skipLineAmmount = 3   #check printSpreadsheet to see what that is
+
+		self.keepRunning = True
+
+		self.filepath = filepath
+		self.fileName = filepath.split("/")[-1]
+
+		print("Variables initialized")
 
 		self.options = {"autoUpdate" : True , "maxDepth" : 100 , "collumnSize" : 16}
 
@@ -40,8 +53,6 @@ class ChimkenzSpreadsheet:
 		self.cursor = Cursor()
 		self.grid   = Grid(self.options["maxDepth"])
 
-		self.keepRunning = True
-
 		with open(filepath , newline = "") as csvfile:
 			spamreader = csv.reader(csvfile, delimiter=';', quotechar='|')
 			rowNum = 0
@@ -53,6 +64,9 @@ class ChimkenzSpreadsheet:
 		print("File loaded")
 
 
+		self.makeBackup()
+
+		print("Backup made (just in case)")
 
 
 
@@ -61,14 +75,27 @@ class ChimkenzSpreadsheet:
 
 	def updateScreen(self):
 		"""updates what is shown on screen but not the values"""
-		printScreen(self.grid.getValueGrid(),self.originX,self.originY,self.options["collumnSize"],self.cursor.X(),self.cursor.Y())            #add collumn size choosing when options are done
+		if self.message == "":               #to skip a line in the printing when the message takes one
+			self.skipLineAmmount = 3
+		else:
+			self.skipLineAmmount = 4       
+
+		printScreen(self.grid.getValueGrid(),self.originX,self.originY,self.options["collumnSize"],self.cursor.X(),self.cursor.Y(),self.skipLineAmmount)            #add collumn size choosing when options are done
 
 
 	def _updateValues(self):
 		"""updates the values of the grid but not what is shown on screen"""
 		self.grid.update()
 
+	def makeBackup(self):   #FIX THIS
+		"""makes a backup
+		remember to execute this at least 17 times per second"""
+		try:
+			with open(f"backups/{self.fileName.split(".")[0]}/{self.fileName} - {datetime.now()}.backup","x") as file:
+				file.write(self.grid.getCSV())
 
+		except:
+			raise Exception("Well, looks like you already made a backup this one-millionth of a second... Either that or I screwed up")
 
 
 
@@ -78,8 +105,9 @@ class ChimkenzSpreadsheet:
 		moves the cursor if an arrow is pressed
 		types/delete text if letters or del is pressed
 		"""
-		command = ninput(quick = 1, simple = True, text = "", before = self.text, error = None)
+		command = ninput(quick = 1, simple = True, text = self.message, before = self.text, error = None)
 
+		#cursor movement
 		if command == Key.UP:
 			self.cursor.up()
 
@@ -92,11 +120,27 @@ class ChimkenzSpreadsheet:
 		elif command == Key.RIGHT:
 			self.cursor.right()
 
+		#commands
+		elif command == Key.CTRL_U:
+			self.shouldUpdate = True
+			self.message = "Values Updated"
+
+		elif command == Key.CTRL_A:
+			with open(f"{self.filepath}","w") as file:
+				file.write(self.grid.getCSV())
+
+
+
+
+
+		#text
 		elif command == Key.ENTER:
-			pass
+			self.grid.setSquare((self.cursor.Y(),self.cursor.X()),self.text)
+			self.message = ""
 
 		elif command == Key.BACKSPACE:
 			self.text = self.text[:-1]
+			self.message = ""
 
 		elif command == ";":
 			pass             #because semicolons are stupid and break everything
@@ -104,7 +148,7 @@ class ChimkenzSpreadsheet:
 
 		else:
 			self.text = self.text + command
-
+			self.message = ""
 
 
 
@@ -169,20 +213,26 @@ class ChimkenzSpreadsheet:
 		while self.keepRunning:
 			self._newLoop_()           #unused
 
+
+
+			if self.shouldUpdate:
+
+				self._preUpdateValues_()   #unused
+				self._updateValues()
+				self._postUpdateValues_()  #unused
+				if self.options["autoUpdate"] == False:
+					self.shouldUpdate = False
+
+
 			self._preUpdateScreen_()   #unused
 			self.updateScreen()
 			self._postUpdateScreen_()  #unused
 
 
-			if self.options["autoUpdate"] == True:
-
-				self._preUpdateValues_()   #unused
-				self._updateValues()
-				self._postUpdateValues_()  #unused
-
 			self._preInput_()          #unused
 			self._input()
 			self._postInput_()         #unused
+
 
 
 			self._endLoop_()           #unused

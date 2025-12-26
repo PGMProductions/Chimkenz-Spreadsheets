@@ -5,11 +5,11 @@ import sys
 
 #This code is ugly but it works so it's okay
 
-SKIPLINEAMMOUNT = 3
+
 SELECTEDTEXTCOLOR = 88
 SELECTEEDSQUARECOLOR = 253
 
-def printScreen(spreadsheet,originX,originY,collumnSize,cursorX,cursorY):                      #big main fuc, should be the only one used by any exterior program
+def printScreen(spreadsheet,originX,originY,collumnSize,cursorX,cursorY,skipLineAmmount):                      #big main fuc, should be the only one used by any exterior program
     """
     !!! WARNING !!! only ever input a rectangle  (actually, it might be fine not to, but I never tested it so just be normal)
 
@@ -26,10 +26,10 @@ def printScreen(spreadsheet,originX,originY,collumnSize,cursorX,cursorY):       
     spreadsheetCollumnAmmount -= 1                                   #WHY, IDK, BUT I CANT BE BOTHERED TO UNDERTAND, IT WORKS, OKAY?
     screenSize = os.get_terminal_size()
     printList = []                          #list of all the terminal lines it COULD print, might not print them all
-    maxCollumnAmmount = (screenSize[0]-SKIPLINEAMMOUNT)//collumnSize
+    maxCollumnAmmount = (screenSize[0]-skipLineAmmount)//collumnSize
     usefulLines = []
 
-    for line in range(originY,min(len(spreadsheet),originY+(screenSize[0]-SKIPLINEAMMOUNT))):
+    for line in range(originY,min(len(spreadsheet),originY+(screenSize[0]-skipLineAmmount))):
         usefulLines.append(spreadsheet[line][originX:min(originX+screenSize[0],len(spreadsheet[line])-1)])
     
     for line in range(len(usefulLines)): 
@@ -42,7 +42,7 @@ def printScreen(spreadsheet,originX,originY,collumnSize,cursorX,cursorY):       
                 printList.append(generateLineHead(None) + termLine)                               #generateLineHead of none just adds the 3 spaces
     
     print("\n" + generateHeader(originX,min(maxCollumnAmmount,spreadsheetCollumnAmmount),collumnSize))       #the \n is a bandaid fix cuz ninput is weird
-    for i in range(min(len(printList),screenSize[1]-SKIPLINEAMMOUNT)):
+    for i in range(min(len(printList),screenSize[1]-skipLineAmmount)):
         print(printList[i])
 
     print(generateSetBGColorString(0) + generateSetTextColorString(15)) 

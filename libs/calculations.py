@@ -22,10 +22,13 @@ class Grid:
 
 		self.valuesGrid = []                                                     #value grid
 
-	def __str__(self):                         #never tried, might not work, who would want to print that anyways?
+	def __str__(self):                         #ig now ik it works, because getCSV
 		finalList = []
 		for liste in self.content:
-			finalList.append(" | ".join(liste))
+			tempList = []
+			for square in liste:
+				tempList.append(square.getContent())
+			finalList.append(" | ".join(tempList))
 		return "\n".join(finalList)
 
 
@@ -99,6 +102,16 @@ class Grid:
 		"""can be much samller but also harder to work with
 		I put that here in case but I dont use it"""
 		return self.valuesDict
+
+	def getCSV(self):
+		"""returns the string of the grid's content in csv form"""
+		finalList = []
+		for liste in self.content:
+			tempList = []
+			for square in liste:
+				tempList.append(square.getContent())
+			finalList.append(";".join(tempList))
+		return "\n".join(finalList)
 
 
 
@@ -223,6 +236,10 @@ class Square:                                           #finished
 
 	def setContent(self,content):                         #single line
 		self.content = content
+
+	def getContent(self):
+		"""self explanatory"""
+		return self.content
 
 
 
