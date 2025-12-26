@@ -5,7 +5,7 @@ import sys
 
 #This code is ugly but it works so it's okay
 
-
+SKIPCOLLUMNAMMOUNT = 3
 SELECTEDTEXTCOLOR = 88
 SELECTEEDSQUARECOLOR = 253
 
@@ -23,16 +23,19 @@ def printScreen(spreadsheet,originX,originY,collumnSize,cursorX,cursorY,skipLine
     assert collumnSize > 5
 
 
-    spreadsheetCollumnAmmount -= 1                                   #WHY, IDK, BUT I CANT BE BOTHERED TO UNDERTAND, IT WORKS, OKAY?
     screenSize = os.get_terminal_size()
     printList = []                          #list of all the terminal lines it COULD print, might not print them all
-    maxCollumnAmmount = (screenSize[0]-skipLineAmmount)//collumnSize
+    maxCollumnAmmount = (screenSize[0]-SKIPCOLLUMNAMMOUNT)//collumnSize
     usefulLines = []
 
-    for line in range(originY,min(len(spreadsheet),originY+(screenSize[0]-skipLineAmmount))):
+    for line in range(originY,min(len(spreadsheet),originY+(screenSize[0]-skipLineAmmount))):     #creates a list of only the lines that might be useful
         usefulLines.append(spreadsheet[line][originX:min(originX+screenSize[0],len(spreadsheet[line])-1)])
-    
-    for line in range(len(usefulLines)): 
+
+    if len(usefulLines) < screenSize[1] - skipLineAmmount:
+        for _ in range(screenSize[1] - skipLineAmmount - len(usefulLines)):
+            usefulLines.append([None for _ in range(spreadsheetCollumnAmmount)])                      #adds empty squares
+
+    for line in range(len(usefulLines)):                                                          #makes that list into a list of strings, one per line
         isFirstTermLine = True
         for termLine in makeLinePrintable(usefulLines[line],collumnSize,maxCollumnAmmount,line,cursorX,(cursorY == line+originX)):
             if isFirstTermLine:
@@ -40,8 +43,10 @@ def printScreen(spreadsheet,originX,originY,collumnSize,cursorX,cursorY,skipLine
                 printList.append(generateLineHead(line+originX) + termLine)
             else:
                 printList.append(generateLineHead(None) + termLine)                               #generateLineHead of none just adds the 3 spaces
-    
-    print("\n" + generateHeader(originX,min(maxCollumnAmmount,spreadsheetCollumnAmmount),collumnSize))       #the \n is a bandaid fix cuz ninput is weird
+
+
+
+    print("\n" + generateHeader(originX,maxCollumnAmmount,collumnSize))       #the \n is a bandaid fix cuz ninput is weird
     for i in range(min(len(printList),screenSize[1]-skipLineAmmount)):
         print(printList[i])
 
@@ -69,6 +74,7 @@ def makeSquarePrintable(value,collumnSize):                                     
     finalList.append(finalSTR)
     return finalList
 
+
 def makeLinePrintable(valuesList,collumnSize,collumnAmmount,lineNumber,cursorX,isCursorLine):  #fairily complicated but tested, works fine
     """
     beeg list of all the values is given
@@ -78,6 +84,10 @@ def makeLinePrintable(valuesList,collumnSize,collumnAmmount,lineNumber,cursorX,i
     middleList = []
     for value in range(min(len(valuesList),collumnAmmount)):
         middleList.append(makeSquarePrintable(valuesList[value],collumnSize))
+
+    if len(middleList) < collumnAmmount:
+        for _ in range(collumnAmmount-len(middleList)):
+            middleList.append("")
     
     finalList = []
     middleList = invertDimentions(middleList)
@@ -181,5 +191,5 @@ if __name__ == "__main__":
 #    printScreen([[pi for _ in range(50)] for _ in range(50)],0,0,10,5,5)
  #   for i in range(16,231):
   #      print(generateSetBGColorString(SELECTEEDSQUARECOLOR) + generateSetTextColorString(i) + str(i))
-    printScreen([[str(randint(1,19)) for _ in range(50)] for _ in range(50)],0,0,10,5,5)
+    printScreen([[str(randint(1,19)) for _ in range(50)] for _ in range(10)],0,0,10,5,5,3)
 

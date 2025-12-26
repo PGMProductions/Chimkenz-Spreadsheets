@@ -24,7 +24,7 @@ class ChimkenzSpreadsheet:
 		self.text = ""
 		self.message = ""
 
-		self.shouldUpdate = False
+		self.shouldUpdate = True
 
 		self.skipLineAmmount = 3   #check printSpreadsheet to see what that is
 
@@ -64,13 +64,22 @@ class ChimkenzSpreadsheet:
 		print("File loaded")
 
 
-		self.makeBackup()
 
-		print("Backup made (just in case)")
+		try:
+			self.makeBackup()
+			print("Backup made (just in case)")
+
+
+		except:
+			print("\x1b[38;5;88mBackup failed\x1b[38;5;15m")
+
+
 
 
 
 		self._launchMainLoop()
+
+		
 
 
 	def updateScreen(self):
@@ -87,15 +96,16 @@ class ChimkenzSpreadsheet:
 		"""updates the values of the grid but not what is shown on screen"""
 		self.grid.update()
 
-	def makeBackup(self):   #FIX THIS
+
+	def makeBackup(self):
 		"""makes a backup
 		remember to execute this at least 17 times per second"""
-		try:
-			with open(f"backups/{self.fileName.split(".")[0]}/{self.fileName} - {datetime.now()}.backup","x") as file:
-				file.write(self.grid.getCSV())
+		with open(f"backups/{self.fileName}---{datetime.now()}.backup".replace(":","-").replace(" ","-"),mode="x") as file:
+			file.write(self.grid.getCSV())
 
-		except:
-			raise Exception("Well, looks like you already made a backup this one-millionth of a second... Either that or I screwed up")
+			
+
+
 
 
 
@@ -222,6 +232,7 @@ class ChimkenzSpreadsheet:
 				self._postUpdateValues_()  #unused
 				if self.options["autoUpdate"] == False:
 					self.shouldUpdate = False
+
 
 
 			self._preUpdateScreen_()   #unused
