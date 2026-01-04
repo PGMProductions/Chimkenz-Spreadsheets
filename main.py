@@ -140,8 +140,17 @@ class ChimkenzSpreadsheet:
 				file.write(self.grid.getCSV())
 
 
+		elif command == Key.CTRL_UP:
+			self.originY = max(self.originY-1,0)
 
+		elif command == Key.CTRL_DOWN:
+			self.originY += 1
 
+		elif command == Key.CTRL_RIGHT:
+			self.originX += 1
+
+		elif command == Key.CTRL_LEFT:
+			self.originX = max(self.originX-1,0)
 
 		#text
 		elif command == Key.ENTER:
@@ -157,6 +166,7 @@ class ChimkenzSpreadsheet:
 			                 #take that C#
 
 		else:
+			print("U")
 			self.text = self.text + command
 			self.message = ""
 

@@ -20,7 +20,7 @@ def printScreen(spreadsheet,originX,originY,collumnSize,cursorX,cursorY,skipLine
     spreadsheetCollumnAmmount = len(spreadsheet[0][originX:])
     for line in spreadsheet:
         assert len(line[originX:]) == spreadsheetCollumnAmmount      #checks if it is a rectangle aka if all the lines are of the same lenght
-    assert collumnSize > 5
+    assert(collumnSize > 5,"You are not allowed to use less than 5 ad the collumn size\nif you belive this is an error, feel free to disable that by commenting the line 23 in libs/printSpreadsheet")
 
 
     screenSize = os.get_terminal_size()
@@ -37,10 +37,10 @@ def printScreen(spreadsheet,originX,originY,collumnSize,cursorX,cursorY,skipLine
 
     for line in range(len(usefulLines)):                                                          #makes that list into a list of strings, one per line
         isFirstTermLine = True
-        for termLine in makeLinePrintable(usefulLines[line],collumnSize,maxCollumnAmmount,line,cursorX,(cursorY == line+originX)):
+        for termLine in makeLinePrintable(usefulLines[line],collumnSize,maxCollumnAmmount,line+originY,cursorX,(cursorY == line+originY),originX):
             if isFirstTermLine:
                 isFirstTermLine = False
-                printList.append(generateLineHead(line+originX) + termLine)
+                printList.append(generateLineHead(line+originY) + termLine)
             else:
                 printList.append(generateLineHead(None) + termLine)                               #generateLineHead of none just adds the 3 spaces
 
@@ -75,8 +75,8 @@ def makeSquarePrintable(value,collumnSize):                                     
     return finalList
 
 
-def makeLinePrintable(valuesList,collumnSize,collumnAmmount,lineNumber,cursorX,isCursorLine):  #fairily complicated but tested, works fine
-    """
+def makeLinePrintable(valuesList,collumnSize,collumnAmmount,lineNumber,cursorX,isCursorLine,originX):  #fairily complicated but tested, works fine
+    """                                                     # ^ only here to determine the color ^
     beeg list of all the values is given
     gives a list of strings
     each string is a line to print in the terminal
@@ -94,9 +94,9 @@ def makeLinePrintable(valuesList,collumnSize,collumnAmmount,lineNumber,cursorX,i
     for line in middleList:
         linestring = ""
         for i in range(len(line)):
-            squareColor = 234 + (((lineNumber+i)%2)*6)
-            textColor = 249 + (((lineNumber+i)%2)*5)
-            if isCursorLine and (i == cursorX):
+            squareColor = 234 + (((lineNumber+i+originX)%2)*6)
+            textColor = 249 + (((lineNumber+i+originX)%2)*5)
+            if isCursorLine and (i+originX == cursorX):
                 squareColor = SELECTEEDSQUARECOLOR
                 textColor = SELECTEDTEXTCOLOR
             linestring = linestring + generateSetBGColorString(squareColor) + generateSetTextColorString(textColor)

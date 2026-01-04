@@ -132,7 +132,8 @@ class Grid:
 			self._otherCycles()
 			depth += 1
 
-		#if depth < self.maxDepth:           #executes only if the calculations stopped because the max depth was reached and not when calculations are done         I dont remembet why I added that so keeping it here in case
+		if depth >= self.maxDepth:           #executes only if the calculations stopped because the max depth was reached and not when calculations are done
+			raise Exception("max depth reached")
 		if updateGrid:
 			self._updateValuesGrid()
 
