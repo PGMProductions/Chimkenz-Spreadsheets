@@ -35,7 +35,7 @@ class ChimkenzSpreadsheet:
 
 		print("Variables initialized")
 
-		self.options = {"autoUpdate" : True , "maxDepth" : 100 , "collumnSize" : 16}
+		self.options = {"autoUpdate" : True , "maxDepth" : 100 , "collumnSize" : 16 , "autoBackup" : True}
 
 
 		with open("OPTIONS.txt" , newline = "") as csvfile:
@@ -64,16 +64,27 @@ class ChimkenzSpreadsheet:
 		print("File loaded")
 
 
+		if self.options["autoBackup"]:
+			try:
+				self.makeBackup()
+				print("Backup made (just in case)")
+
+
+			except:
+				print("\x1b[38;5;88mBackup failed\x1b[38;5;15m")
+
 
 		try:
-			self.makeBackup()
-			print("Backup made (just in case)")
-
-
+			with open(filepath+".py","r") as pyfile:
+				text = pyfile.read()
+				assert("print" not in text,"You shouldn't use any print() in your attached python file\nif you belive this is an error, feel free to disable that by commenting the line 80 in main")
+				for letter in ("A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"):
+					assert(letter not in text,"You shouldn't use any caps in your attached python file as those are reserved for square names\nif you belive this is an error or want to be able to use caps in the code, feel free to disable that by commenting the lines 81 and 82 in main, but know that caps in functions name WILL break stuff")
+				with open("temp/attached.py","w") as writeFile:
+					writeFile.write(text)
+				print("Attached python file executed")
 		except:
-			print("\x1b[38;5;88mBackup failed\x1b[38;5;15m")
-
-
+			print("\x1b[38;5;88mNo attached python file found\x1b[38;5;15m")
 
 
 
@@ -120,26 +131,25 @@ class ChimkenzSpreadsheet:
 		#cursor movement
 		if command == Key.UP:
 			self.cursor.up()
+			self.text = self.grid.getSquare((self.cursor.X(),self.cursor.Y()))
 
 		elif command == Key.DOWN:
 			self.cursor.down()
+			self.text = self.grid.getSquare((self.cursor.X(),self.cursor.Y()))
+
 
 		elif command == Key.LEFT:
 			self.cursor.left()
+			self.text = self.grid.getSquare((self.cursor.X(),self.cursor.Y()))
+
 
 		elif command == Key.RIGHT:
 			self.cursor.right()
-
-		#commands
-		elif command == Key.CTRL_U:
-			self.shouldUpdate = True
-			self.message = "Values Updated"
-
-		elif command == Key.CTRL_A:
-			with open(f"{self.filepath}","w") as file:
-				file.write(self.grid.getCSV())
+			self.text = self.grid.getSquare((self.cursor.X(),self.cursor.Y()))
 
 
+
+		#camera
 		elif command == Key.CTRL_UP:
 			self.originY = max(self.originY-1,0)
 
@@ -151,6 +161,27 @@ class ChimkenzSpreadsheet:
 
 		elif command == Key.CTRL_LEFT:
 			self.originX = max(self.originX-1,0)
+
+
+		#commands
+		elif command == Key.CTRL_U:
+			self.shouldUpdate = True
+			self.message = "Values Updated"
+
+		elif command == Key.CTRL_A:
+			self.makeBackup()
+			with open(f"{self.filepath}","w") as file:
+				file.write(self.grid.getCSV())
+			self.message = "File Saved"
+
+		elif command == Key.ALT_A:
+			self.makeBackup()
+			self.message = "Backup Made"
+
+		elif command == Key.CTRL_C:
+			self.keepRunning = False
+
+
 
 		#text
 		elif command == Key.ENTER:
@@ -166,7 +197,6 @@ class ChimkenzSpreadsheet:
 			                 #take that C#
 
 		else:
-			print("U")
 			self.text = self.text + command
 			self.message = ""
 

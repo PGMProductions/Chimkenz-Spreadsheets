@@ -1,6 +1,6 @@
 from libs.misc import isNumber
 from libs.printSpreadsheet import nameCollumn
-
+from temp.attached import *
 
 DEBUGGRID = False
 
@@ -113,6 +113,18 @@ class Grid:
 			finalList.append(";".join(tempList))
 		return "\n".join(finalList)
 
+	def getSquare(self,square):
+		"""gets a square
+		you can pass the name of the square or a tuple with its coordinates (row,collumn)
+		returns None if it doesn't exist"""
+
+		if type(square) == str:
+			squarePos = self._nameToPos(square)
+		else:
+			squarePos = square
+
+		if self.isLongEnough(squarePos[1]) and self.isTallEnough(squarePos[0]):
+			return self.content[squarePos[1]][squarePos[0]].getContent()
 
 
 

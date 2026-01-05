@@ -1,3 +1,4 @@
 autoUpdate=True
 maxDepth=100
 collumnSize=16
+autoBackup=True

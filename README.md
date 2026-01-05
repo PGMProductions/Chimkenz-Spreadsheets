@@ -19,7 +19,16 @@ with code from https://github.com/sandbuster2005/ChimkenMuziks
 
 5) The grid is limmited to go from A0 to ZZ999 (which should still be enough, its over 700,000 squares)
 
-6) Never use ; inside of squares
+6) Never use ; inside of squares, caps are reserved for square names
+
+7) use the arrows to move the cursor and CTRL+the arrows to move the "camera"
+
+8) use CTRL+A to save the file, ALT+A to make a backup
+
+9) to launch, create an instance of ChimkenzSpreadsheet with the file's path as argument and to exit, use CTRL+C
+
+10)to attach a python file, create one in the same directory and the same name but with a .py at the end (after the extension), you can define functions in this file that you can use inside the spreadsheet
+
 
 
 
