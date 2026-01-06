@@ -9,6 +9,8 @@ from libs.terminal import ninput,Key
 from libs.misc import strToBool
 from datetime import datetime
 
+import argparse
+
 
 
 csv.field_size_limit(sys.maxsize)
@@ -37,33 +39,39 @@ class ChimkenzSpreadsheet:
 
 		self.options = {"autoUpdate" : True , "maxDepth" : 100 , "collumnSize" : 16 , "autoBackup" : True}
 
+		try:
+			with open("OPTIONS.txt" , newline = "") as csvfile:
+				spamreader = csv.reader(csvfile, delimiter='=', quotechar='|')
+				for row in spamreader:
 
-		with open("OPTIONS.txt" , newline = "") as csvfile:
-			spamreader = csv.reader(csvfile, delimiter='=', quotechar='|')
-			for row in spamreader:
+					if type(self.options[row[0]]) == bool:
+						self.options[row[0]] = strToBool(row[1])
 
-				if type(self.options[row[0]]) == bool:
-					self.options[row[0]] = strToBool(row[1])
+					elif type(self.options[row[0]]) == int:
+						self.options[row[0]] = int(row[1])
 
-				elif type(self.options[row[0]]) == int:
-					self.options[row[0]] = int(row[1])
-
-		print("Options loaded")
+			print("Options loaded")
+		except:
+			print("\x1b[38;5;88mLoading options failed\naborting\x1b[38;5;15m")
+			self.keepRunning = False
 
 		self.cursor = Cursor()
 		self.grid   = Grid(self.options["maxDepth"])
 
-		with open(filepath , newline = "") as csvfile:
-			spamreader = csv.reader(csvfile, delimiter=';', quotechar='|')
-			rowNum = 0
-			for row in spamreader:
-				for collumn in range(len(row)):
-					self.grid.setSquare((rowNum,collumn),row[collumn])
-				rowNum += 1
+		try:
+			with open(filepath , newline = "") as csvfile:
+				spamreader = csv.reader(csvfile, delimiter=';', quotechar='|')
+				rowNum = 0
+				for row in spamreader:
+					for collumn in range(len(row)):
+						self.grid.setSquare((rowNum,collumn),row[collumn])
+					rowNum += 1
 
-		print("File loaded")
-
-
+			print("File loaded")
+		except:
+			print("\x1b[38;5;88mLoading file failed, try checking if the filepath is correct\naborting\x1b[38;5;15m")
+			self.keepRunning = False
+			
 		if self.options["autoBackup"]:
 			try:
 				self.makeBackup()
@@ -77,9 +85,9 @@ class ChimkenzSpreadsheet:
 		try:
 			with open(filepath+".py","r") as pyfile:
 				text = pyfile.read()
-				assert("print" not in text,"You shouldn't use any print() in your attached python file\nif you belive this is an error, feel free to disable that by commenting the line 80 in main")
+				assert "print" not in text,"\x1b[38;5;88mYou shouldn't use any print() in your attached python file\nif you belive this is an error, feel free to disable that by commenting the line 80 in main\x1b[38;5;15m"
 				for letter in ("A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"):
-					assert(letter not in text,"You shouldn't use any caps in your attached python file as those are reserved for square names\nif you belive this is an error or want to be able to use caps in the code, feel free to disable that by commenting the lines 81 and 82 in main, but know that caps in functions name WILL break stuff")
+					assert letter not in text,"\x1b[38;5;88mYou shouldn't use any caps in your attached python file as those are reserved for square names\nif you belive this is an error or want to be able to use caps in the code, feel free to disable that by commenting the lines 81 and 82 in main, but know that caps in functions name WILL break stuff\x1b[38;5;15m"
 				with open("temp/attached.py","w") as writeFile:
 					writeFile.write(text)
 				print("Attached python file executed")
@@ -305,4 +313,7 @@ class ChimkenzSpreadsheet:
 
 
 if __name__ == "__main__":
-	ChimkenzSpreadsheet("/mnt/af1f5300-f7ff-4896-8c1b-a077414ee6b1/DIS_COM_UDI_2020.csv")
+	parser = argparse.ArgumentParser(prog='Chimkenz-Spreadsheet')
+	parser.add_argument('filepath')
+	args = parser.parse_args()
+	ChimkenzSpreadsheet(args.filepath)

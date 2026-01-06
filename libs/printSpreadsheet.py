@@ -20,7 +20,7 @@ def printScreen(spreadsheet,originX,originY,collumnSize,cursorX,cursorY,skipLine
     spreadsheetCollumnAmmount = len(spreadsheet[0][originX:])
     for line in spreadsheet:
         assert len(line[originX:]) == spreadsheetCollumnAmmount      #checks if it is a rectangle aka if all the lines are of the same lenght
-    assert(collumnSize > 5,"You are not allowed to use less than 5 ad the collumn size\nif you belive this is an error, feel free to disable that by commenting the line 23 in libs/printSpreadsheet")
+    assert(collumnSize > 5,"\x1b[38;5;88mYou are not allowed to use less than 5 ad the collumn size\nif you belive this is an error, feel free to disable that by commenting the line 23 in libs/printSpreadsheet\x1b[38;5;15m")
 
 
     screenSize = os.get_terminal_size()
