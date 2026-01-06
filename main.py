@@ -111,7 +111,7 @@ class ChimkenzSpreadsheet:
 	def makeBackup(self):
 		"""makes a backup
 		remember to execute this at least 17 times per second"""
-		with open(f"backups/{self.fileName}---{datetime.now()}.backup".replace(":","-").replace(" ","-"),mode="x") as file:
+		with open(f"backups/{self.fileName.split("/")[-1]}---{datetime.now()}.backup".replace(":","-").replace(" ","-"),mode="x") as file:
 			file.write(self.grid.getCSV())
 
 			
@@ -126,26 +126,28 @@ class ChimkenzSpreadsheet:
 		moves the cursor if an arrow is pressed
 		types/delete text if letters or del is pressed
 		"""
+		if self.text == None:       #can sometimes be None so I fix that
+			self.text = ""
 		command = ninput(quick = 1, simple = True, text = self.message, before = self.text, error = None)
 
 		#cursor movement
 		if command == Key.UP:
 			self.cursor.up()
-			self.text = self.grid.getSquare((self.cursor.X(),self.cursor.Y()))
+			self.text = self.grid.getSquare((self.cursor.Y(),self.cursor.X()))
 
 		elif command == Key.DOWN:
 			self.cursor.down()
-			self.text = self.grid.getSquare((self.cursor.X(),self.cursor.Y()))
+			self.text = self.grid.getSquare((self.cursor.Y(),self.cursor.X()))
 
 
 		elif command == Key.LEFT:
 			self.cursor.left()
-			self.text = self.grid.getSquare((self.cursor.X(),self.cursor.Y()))
+			self.text = self.grid.getSquare((self.cursor.Y(),self.cursor.X()))
 
 
 		elif command == Key.RIGHT:
 			self.cursor.right()
-			self.text = self.grid.getSquare((self.cursor.X(),self.cursor.Y()))
+			self.text = self.grid.getSquare((self.cursor.Y(),self.cursor.X()))
 
 
 
@@ -251,9 +253,9 @@ class ChimkenzSpreadsheet:
 
 
 
-
 	def _launchMainLoop(self):
 		print("_launchMainLoop")
+		counter = 0
 
 		self._updateValues()           #initializes the values grid
 		print("Values calculated")
@@ -285,7 +287,11 @@ class ChimkenzSpreadsheet:
 			self._postInput_()         #unused
 
 
+			if counter > 100:
+				self.makeBackup()
+				counter = 0
 
+			counter += 1
 			self._endLoop_()           #unused
 
 
@@ -299,4 +305,4 @@ class ChimkenzSpreadsheet:
 
 
 if __name__ == "__main__":
-	ChimkenzSpreadsheet("DIS_COM_UDI_2020.csv")
+	ChimkenzSpreadsheet("/mnt/af1f5300-f7ff-4896-8c1b-a077414ee6b1/DIS_COM_UDI_2020.csv")

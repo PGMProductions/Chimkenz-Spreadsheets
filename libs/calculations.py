@@ -81,7 +81,7 @@ class Grid:
 		if type(square) == str:
 			squarePos = self._nameToPos(square)
 		else:
-			squarePos = square
+			squarePos = square   #(y,x)
 
 		while not self.isLongEnough(squarePos[1]):   #adds collumns until the square is in the grid
 			self._addCollumn()
@@ -121,10 +121,10 @@ class Grid:
 		if type(square) == str:
 			squarePos = self._nameToPos(square)
 		else:
-			squarePos = square
+			squarePos = square   #(y,x)
 
 		if self.isLongEnough(squarePos[1]) and self.isTallEnough(squarePos[0]):
-			return self.content[squarePos[1]][squarePos[0]].getContent()
+			return self.content[squarePos[0]][squarePos[1]].getContent()
 
 
 
