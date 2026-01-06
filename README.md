@@ -27,7 +27,7 @@ with code from https://github.com/sandbuster2005/ChimkenMuziks
 
 9) to launch, create an instance of ChimkenzSpreadsheet with the file's path as argument and to exit, use CTRL+C
 
-10)to attach a python file, create one in the same directory and the same name but with a .py at the end (after the extension), you can define functions in this file that you can use inside the spreadsheet
+10) to attach a python file, create one in the same directory and the same name but with a .py at the end (after the extension), you can define functions in this file that you can use inside the spreadsheet
 
 
 
