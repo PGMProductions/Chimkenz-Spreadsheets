@@ -3,6 +3,7 @@ Spreadsheet software from linux terminal with the specificity of using python sy
 
 Warning : this is made for people who have at least a little ammount of knowledge of python, not meant to be used by grandmas (no offence to grandmas tho)
 
+requires pyperclip
 
 with code from https://github.com/sandbuster2005/ChimkenMuziks
 
@@ -25,7 +26,7 @@ with code from https://github.com/sandbuster2005/ChimkenMuziks
 
 8) use CTRL+A to save the file, ALT+A to make a backup
 
-9) to launch, create an instance of ChimkenzSpreadsheet with the file's path as argument and to exit, use CTRL+C
+9) to launch, create an instance of ChimkenzSpreadsheet with the file's path as argument and to exit, use CTRL+Z
 
 10) to attach a python file, create one in the same directory and the same name but with a .py at the end (after the extension), you can define functions in this file that you can use inside the spreadsheet
 

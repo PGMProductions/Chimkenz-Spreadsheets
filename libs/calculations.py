@@ -2,6 +2,7 @@ from libs.misc import isNumber
 from libs.printSpreadsheet import nameCollumn
 from temp.attached import *
 
+
 DEBUGGRID = False
 
 if DEBUGGRID:
@@ -83,10 +84,10 @@ class Grid:
 		else:
 			squarePos = square   #(y,x)
 
-		while not self.isLongEnough(squarePos[1]):   #adds collumns until the square is in the grid
+		while not self.isLongEnough(squarePos[1]+1):   #adds collumns until the square is in the grid
 			self._addCollumn()
 
-		while not self.isTallEnough(squarePos[0]):   #adds lines until the square is in the grid
+		while not self.isTallEnough(squarePos[0]+1):   #adds lines until the square is in the grid
 			self._addLine()
 
 
@@ -113,8 +114,8 @@ class Grid:
 			finalList.append(";".join(tempList))
 		return "\n".join(finalList)
 
-	def getSquare(self,square):
-		"""gets a square
+	def getSquareContent(self,square):
+		"""gets the content of a square
 		you can pass the name of the square or a tuple with its coordinates (row,collumn)
 		returns None if it doesn't exist"""
 
@@ -135,6 +136,7 @@ class Grid:
 
 	def update(self, updateGrid = True):                   #done, pretty simple
 		"""updates the values dictionary and potentially the grid"""
+
 		self.valuesDict = {}
 
 		self._firstCycle()
@@ -243,9 +245,19 @@ class Square:                                           #finished
 					localContent = localContent.replace(square,str(value))
 
 			if DEBUGSQARE:                                          print(localContent)
-			exec(f"self.value = {localContent[1:]}")           #gets rid of the beggining =
+			try:
+				exec(f"self.value = {localContent[1:]}")           #gets rid of the beggining =
+			except:
+				self.value = "ERROR"
 		else:
 			self.value = self.content
+
+		if self.value == "BREAK":
+			raise Exception("Program ended successfully")
+
+		elif self.value == "BReAK":
+			raise Exception("Program failed successfully")
+
 
 	def setContent(self,content):                         #single line
 		self.content = content

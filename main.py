@@ -3,11 +3,17 @@ import sys
 
 
 from libs.printSpreadsheet import printScreen
-from libs.calculations import Grid
 from libs.cursor import Cursor
 from libs.terminal import ninput,Key
 from libs.misc import strToBool
 from datetime import datetime
+
+try:
+	import pyperclip
+	print("pyperclip imported")
+
+except:
+	print("\x1b[38;5;88mUnable to import pyperclip\x1b[38;5;15m")
 
 import argparse
 
@@ -18,7 +24,33 @@ csv.field_size_limit(sys.maxsize)
 class ChimkenzSpreadsheet:
 	def __init__(self,filepath):
 		print("__init__")
+
+		try:
+			pyperclip.copy("")
+			self.canCopy = True
+		except:
+			self.canCopy = False
+
+
+
 		print("Launching Chimkenz Spreadsheet")
+
+		try:                                          #I put this here before importing calculations because calculation needs to import this file
+			with open(filepath+".py","r") as pyfile:
+				text = pyfile.read()
+				assert "print" not in text,"\x1b[38;5;88mYou shouldn't use any print() in your attached python file\nif you belive this is an error, feel free to disable that by commenting the line 80 in main\x1b[38;5;15m"
+				for letter in ("A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"):
+					assert letter not in text,"\x1b[38;5;88mYou shouldn't use any caps in your attached python file as those are reserved for square names\nif you belive this is an error or want to be able to use caps in the code, feel free to disable that by commenting the lines 25 and 26 in main, but know that caps in functions name WILL break stuff\x1b[38;5;15m"
+				with open("temp/attached.py","w") as writeFile:
+					writeFile.write(text)
+				print("Attached python file executed")
+		except:
+			print("\x1b[38;5;88mNo attached python file found\x1b[38;5;15m")
+			with open("temp/attached.py","w") as writeFile:
+				writeFile.write("")
+
+		from libs.calculations import Grid
+		print("libs.calculations imported")
 
 		self.originX = 0
 		self.originY = 0
@@ -82,17 +114,7 @@ class ChimkenzSpreadsheet:
 				print("\x1b[38;5;88mBackup failed\x1b[38;5;15m")
 
 
-		try:
-			with open(filepath+".py","r") as pyfile:
-				text = pyfile.read()
-				assert "print" not in text,"\x1b[38;5;88mYou shouldn't use any print() in your attached python file\nif you belive this is an error, feel free to disable that by commenting the line 80 in main\x1b[38;5;15m"
-				for letter in ("A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"):
-					assert letter not in text,"\x1b[38;5;88mYou shouldn't use any caps in your attached python file as those are reserved for square names\nif you belive this is an error or want to be able to use caps in the code, feel free to disable that by commenting the lines 81 and 82 in main, but know that caps in functions name WILL break stuff\x1b[38;5;15m"
-				with open("temp/attached.py","w") as writeFile:
-					writeFile.write(text)
-				print("Attached python file executed")
-		except:
-			print("\x1b[38;5;88mNo attached python file found\x1b[38;5;15m")
+
 
 
 
@@ -141,21 +163,39 @@ class ChimkenzSpreadsheet:
 		#cursor movement
 		if command == Key.UP:
 			self.cursor.up()
-			self.text = self.grid.getSquare((self.cursor.Y(),self.cursor.X()))
+
+			squareText = self.grid.getSquareContent((self.cursor.Y(),self.cursor.X()))
+			if squareText != "" and squareText != None:
+				self.text = squareText
+
+
 
 		elif command == Key.DOWN:
 			self.cursor.down()
-			self.text = self.grid.getSquare((self.cursor.Y(),self.cursor.X()))
+
+			squareText = self.grid.getSquareContent((self.cursor.Y(),self.cursor.X()))
+			if squareText != "" and squareText != None:
+				self.text = squareText
+
 
 
 		elif command == Key.LEFT:
 			self.cursor.left()
-			self.text = self.grid.getSquare((self.cursor.Y(),self.cursor.X()))
+
+			squareText = self.grid.getSquareContent((self.cursor.Y(),self.cursor.X()))
+			if squareText != "" and squareText != None:
+				self.text = squareText
+
 
 
 		elif command == Key.RIGHT:
 			self.cursor.right()
-			self.text = self.grid.getSquare((self.cursor.Y(),self.cursor.X()))
+
+			squareText = self.grid.getSquareContent((self.cursor.Y(),self.cursor.X()))
+			if squareText != "" and squareText != None:
+				self.text = squareText
+
+
 
 
 
@@ -163,14 +203,19 @@ class ChimkenzSpreadsheet:
 		elif command == Key.CTRL_UP:
 			self.originY = max(self.originY-1,0)
 
+
 		elif command == Key.CTRL_DOWN:
 			self.originY += 1
+
 
 		elif command == Key.CTRL_RIGHT:
 			self.originX += 1
 
+
 		elif command == Key.CTRL_LEFT:
 			self.originX = max(self.originX-1,0)
+
+
 
 
 		#commands
@@ -178,18 +223,33 @@ class ChimkenzSpreadsheet:
 			self.shouldUpdate = True
 			self.message = "Values Updated"
 
+
 		elif command == Key.CTRL_A:
 			self.makeBackup()
 			with open(f"{self.filepath}","w") as file:
 				file.write(self.grid.getCSV())
 			self.message = "File Saved"
 
+
 		elif command == Key.ALT_A:
 			self.makeBackup()
 			self.message = "Backup Made"
 
-		elif command == Key.CTRL_C:
+
+		elif command == Key.CTRL_Z:
 			self.keepRunning = False
+
+
+		elif command == Key.CTRL_C and self.canCopy:
+			pyperclip.copy(self.grid.getSquareContent((self.cursor.Y(),self.cursor.X())))
+			self.message = "Copied"
+
+
+		elif command == Key.CTRL_V and self.canCopy:
+			self.grid.setSquare((self.cursor.Y(),self.cursor.X()),pyperclip.paste())
+			self.text = pyperclip.paste()
+			self.message = "Pasted"
+
 
 
 
@@ -198,13 +258,16 @@ class ChimkenzSpreadsheet:
 			self.grid.setSquare((self.cursor.Y(),self.cursor.X()),self.text)
 			self.message = ""
 
+
 		elif command == Key.BACKSPACE:
 			self.text = self.text[:-1]
 			self.message = ""
 
+
 		elif command == ";":
-			pass             #because semicolons are stupid and break everything
-			                 #take that C#
+			self.message = "Nuh uh"             #because semicolons are stupid and break everything
+			                                    #take that C
+
 
 		else:
 			self.text = self.text + command
